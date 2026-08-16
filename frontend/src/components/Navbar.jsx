@@ -16,12 +16,12 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {/* Desktop Links (Hidden on Mobile) */}
+          <div className="hidden md:flex" style={{ alignItems: 'center', gap: '20px' }}>
             <Link to="/" style={{ color: '#374151', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
             <Link to="/dashboard" style={{ color: '#374151', textDecoration: 'none', fontWeight: 500 }}>Dashboard</Link>
             <Link to="/login" style={{ color: '#374151', textDecoration: 'none', fontWeight: 500 }}>Login</Link>
-            <Link to="/admin-login" style={{ backgroundColor: '#2563eb', color: '#white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontWeight: 500, color: '#fff' }}>
+            <Link to="/admin-login" style={{ backgroundColor: '#2563eb', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontWeight: 500, color: '#fff' }}>
               Admin Login
             </Link>
           </div>
