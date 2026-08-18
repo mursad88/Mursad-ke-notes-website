@@ -1,98 +1,147 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
 
-function ViewNote() {
+export default function ViewNote() {
   const { id } = useParams();
-  
-  // ये हमारी स्टेट (State) हैं जो पासवर्ड और लॉक को संभालेंगी
-  const [password, setPassword] = useState('');
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [error, setError] = useState('');
+  const [note, setNote] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // अभी के लिए हमने '123' को पासवर्ड रखा है। 
-  // (बाद में जब हम बैकएंड बनाएंगे, तो हर छात्र का पासवर्ड अलग होगा जो डेटाबेस से आएगा)
-  const correctPassword = "123"; 
+  useEffect(() => {
+    // डेटाबेस से इस खास नोट की पूरी डिटेल लाना
+    axios.get(`http://localhost:5000/api/admin/all-notes`)
+      .then(response => {
+        if (response.data.success) {
+          const foundNote = response.data.notes.find(n => n._id === id);
+          setNote(foundNote);
+        }
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("Error fetching note details:", error);
+        setLoading(false);
+      });
+  }, [id]);
 
-  // जब यूज़र 'अनलॉक करें' बटन दबाएगा, तब यह फंक्शन चलेगा
-  const handleUnlock = (e) => {
-    e.preventDefault(); // इससे पेज रिफ्रेश नहीं होगा
-    
-    if (password === correctPassword) {
-      setIsUnlocked(true);
-      setError('');
-    } else {
-      setError('गलत पासवर्ड! कृपया दोबारा प्रयास करें।');
+  // Razorpay पेमेंट शुरू करने का फंक्शन
+  const handleCheckout = async () => {
+    try {
+      // 1. बैकएंड से आर्डर मंगाना
+      const { data } = await axios.post("http://localhost:5000/api/payment/checkout", {
+        amount: note.price,
+      });
+
+      if (!data.success) {
+        alert("पेमेंट आर्डर बनाने में समस्या ई!");
+        return;
+      }
+
+      const order = data.order;
+
+      // 2. Razorpay विकल्प सेटअप करना
+      const options = {
+        key: "rzp_test_TPiTOSlKpdcijW", // आपकी Razorpay Key ID
+        amount: order.amount,
+        currency: "INR",
+        name: "Mursad ke Notes",
+        description: note.title,
+        order_id: order.id,
+        handler: async function (response) {
+          // 3. पेमेंट सफल होने के बाद वेरिफिकेशन के लिए भेजना
+          try {
+            const verifyUrl = `http://localhost:5000/api/payment/paymentverification?title=${encodeURIComponent(note.title)}`;
+            const verifyData = await axios.post(verifyUrl, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            if (verifyData.data.success !== false) {
+              alert("पेमेंट सफल रहा! आपको नोट्स का एक्सेस मिल गया है।");
+              window.location.href = `/notes?reference=${response.razorpay_payment_id}`;
+            }
+          } catch (err) {
+            console.error("Verification error:", err);
+            alert("पेमेंट वेरिफिकेशन फेल हो गया!");
+          }
+        },
+        prefill: {
+          name: "Gopal Yadav Student",
+          email: "student@gmail.com",
+          contact: "9999999999",
+        },
+        theme: {
+          color: "#2563eb",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("पेमेंट प्रोसेस शुरू करने में एरर आ गई!");
     }
   };
 
-  // राइट-क्लिक बंद करने का फंक्शन
-  const disableRightClick = (e) => {
-    e.preventDefault();
-  };
-
-  // --------------------------------------------------------
-  // स्क्रीन 1: अगर लॉक नहीं खुला है, तो पासवर्ड वाली स्क्रीन दिखाएं
-  // --------------------------------------------------------
-  if (!isUnlocked) {
+  if (loading) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border-t-4 border-blue-800">
-          <div className="text-center mb-8">
-            <span className="text-6xl block mb-4">🔒</span>
-            <h2 className="text-3xl font-extrabold text-gray-800">पीडीएफ सुरक्षित है</h2>
-            <p className="text-gray-600 mt-2">इसे खोलने के लिए कृपया अपना पासवर्ड दर्ज करें।</p>
-          </div>
-          
-          <form onSubmit={handleUnlock}>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="पासवर्ड डालें (हिंट: 123)"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 mb-2"
-            />
-            
-            {/* अगर पासवर्ड गलत है, तो यहाँ लाल रंग में एरर दिखेगा */}
-            {error && <p className="text-red-500 text-sm mb-4 font-bold">{error}</p>}
-            
-            <button 
-              type="submit" 
-              className="w-full bg-blue-800 text-white py-3 rounded-lg font-bold hover:bg-blue-900 transition mt-4 shadow-md"
-            >
-              अनलॉक करें
-            </button>
-          </form>
-        </div>
+      <div className="min-h-screen bg-slate-900 text-white flex justify-center items-center">
+        <p className="text-xl">Loading note details...</p>
       </div>
     );
   }
 
-  // --------------------------------------------------------
-  // स्क्रीन 2: अगर सही पासवर्ड डाल दिया, तो सुरक्षित पीडीएफ दिखाएं
-  // --------------------------------------------------------
+  if (!note) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex flex-col justify-center items-center">
+        <p className="text-xl mb-4">Note not found!</p>
+        <Link to="/" className="bg-blue-600 px-4 py-2 rounded-xl text-white no-underline">Go Back Home</Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8 flex flex-col items-center">
-      
-      <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 w-full max-w-5xl rounded shadow-sm flex justify-between items-center">
-        <p className="font-bold">सुरक्षा अलर्ट:</p>
-        <p>इस नोट्स को पढ़ने के लिए आपके पास <span className="font-extrabold text-red-600">23 घंटे 59 मिनट</span> बचे हैं।</p>
-      </div>
-
-      <div 
-        className="bg-gray-900 w-full max-w-5xl h-[80vh] rounded-xl shadow-2xl flex flex-col items-center justify-center text-white relative border-4 border-gray-800"
-        onContextMenu={disableRightClick}
-      >
-        <div className="text-center p-8">
-          <span className="text-6xl mb-4 block text-green-400">✅</span>
-          <h2 className="text-2xl font-bold mb-2">आपका पीडीएफ यहाँ सफलतापूर्वक खुल गया है!</h2>
-          <p className="text-gray-400">(यह एक डेमो है, बाद में हम यहाँ असली पीडीएफ व्यूअर लगायेंगे)</p>
-        </div>
+    <div className="min-h-screen bg-slate-900 text-slate-100 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-3xl mx-auto bg-slate-800/85 border border-slate-700 p-8 rounded-2xl shadow-2xl">
         
-        <div className="absolute inset-0 z-10"></div>
-      </div>
+        <Link to="/" className="text-blue-400 hover:text-blue-300 text-sm font-semibold mb-6 inline-block no-underline">
+          &larr; Back to Home
+        </Link>
 
+        <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-4">
+          {note.category || "General"}
+        </span>
+
+        <h1 className="text-3xl sm:text-4xl font-black text-white mb-4 leading-tight">
+          {note.title}
+        </h1>
+
+        <p className="text-slate-300 text-base leading-relaxed mb-8">
+          {note.description}
+        </p>
+
+        <div className="bg-slate-900/60 p-6 rounded-xl border border-slate-700/60 mb-8 flex items-center justify-between">
+          <div>
+            <p className="text-slate-400 text-sm">Price for Full PDF Access</p>
+            <p className="text-3xl font-black text-white mt-1">₹{note.price}</p>
+          </div>
+          <div className="text-right">
+            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-medium px-3 py-1.5 rounded-full">
+              ✓ Instant 24-Hr Access
+            </span>
+          </div>
+        </div>
+
+        {/* Real Razorpay Payment Button */}
+        <button 
+          onClick={handleCheckout}
+          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition shadow-lg text-lg cursor-pointer"
+        >
+          Proceed to Pay ₹{note.price}
+        </button>
+
+      </div>
     </div>
   );
 }
-
-export default ViewNote;
