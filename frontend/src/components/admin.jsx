@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+const API_URL = "https://mursad-ke-notes-website.onrender.com";
+
 function Admin() {
   const [token, setToken] = useState(localStorage.getItem('adminToken') || '');
   const [loginData, setLoginData] = useState({ username: '', password: '' });
@@ -21,7 +23,7 @@ function Admin() {
     setIsLoggingIn(true);
     setLoginError('');
     try {
-      const res = await fetch('http://localhost:5000/api/admin/login', {
+      const res = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginData)
@@ -47,7 +49,7 @@ function Admin() {
 
   const fetchNotes = async () => {
     try {
-      const res = await fetch('https://mursad-ke-notes-website.onrender.com');
+      const res = await fetch(`${API_URL}/api/notes`);
       const data = await res.json();
       if (data.success) setNotes(data.notes);
     } catch (err) {
@@ -77,7 +79,7 @@ function Admin() {
     if (sampleFile) submitData.append('sampleFile', sampleFile);
 
     try {
-      const res = await fetch('https://mursad-ke-notes-website.onrender.com', {
+      const res = await fetch(`${API_URL}/api/admin/add-note`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: submitData
@@ -106,7 +108,7 @@ function Admin() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/delete-note/${id}`, {
+      const res = await fetch(`${API_URL}/api/admin/delete-note/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
