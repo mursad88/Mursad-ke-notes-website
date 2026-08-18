@@ -1,89 +1,95 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+const API_URL = "https://mursad-ke-notes-website.onrender.com";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
-      const res = await fetch('https://mursad-ke-notes-website.onrender.com', {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(formData)
       });
       const data = await res.json();
-
       if (data.success) {
-        localStorage.setItem('studentToken', data.token);
-        alert('🎉 Login Successful!');
+        localStorage.setItem('token', data.token);
         navigate('/dashboard');
       } else {
-        setError(data.message || 'Invalid Email or Password');
+        setError(data.message);
       }
     } catch (err) {
-      setError('Server connection failed. Please try again.');
+      setError("Server connection failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-t-8 border-blue-900">
-        <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-2">Student Login</h2>
-        <p className="text-center text-gray-500 mb-6 text-sm">Access your purchased notes and dashboard</p>
-        
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-900 p-6">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 md:p-10 border-t-8 border-blue-600">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-black text-gray-900">Welcome Back! 👋</h2>
+          <p className="text-gray-500 text-sm mt-1">Login to access your purchased notes</p>
+        </div>
+
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-bold mb-4 text-center border border-red-200">
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-r-lg text-sm font-bold">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
+            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Email Address</label>
             <input 
               type="email" 
+              name="email" 
               required 
-              placeholder="student@gmail.com"
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              className="w-full p-3 border rounded-lg outline-none bg-gray-50 focus:ring-2 focus:ring-blue-600"
+              value={formData.email} 
+              onChange={handleChange} 
+              placeholder="you@example.com"
+              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
+            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
             <input 
               type="password" 
+              name="password" 
               required 
+              value={formData.password} 
+              onChange={handleChange} 
               placeholder="••••••••"
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              className="w-full p-3 border rounded-lg outline-none bg-gray-50 focus:ring-2 focus:ring-blue-600"
+              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
             />
           </div>
 
           <button 
             type="submit" 
-            disabled={loading} 
-            className="w-full bg-blue-900 text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition shadow-md"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200"
           >
-            {loading ? "Logging in... ⏳" : "Login 🚀"}
+            {loading ? "Logging in... ⏳" : "Login Securely 🚀"}
           </button>
         </form>
 
-        <div className="text-center mt-6 text-sm text-gray-600">
-          Don't have an account? <span className="text-blue-600 font-bold cursor-pointer hover:underline">Sign up</span>
-        </div>
+        <p className="text-center text-sm text-gray-600 mt-6">
+          Don't have an account? <a href="/signup" className="text-blue-600 font-bold hover:underline">Sign up</a>
+        </p>
       </div>
     </div>
   );

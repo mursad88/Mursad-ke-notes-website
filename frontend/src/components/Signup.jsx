@@ -1,10 +1,14 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = "https://mursad-ke-notes-website.onrender.com";
 
 function Signup() {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -12,6 +16,9 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    setMessage('');
     try {
       const response = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
@@ -20,52 +27,81 @@ function Signup() {
       });
       const data = await response.json();
       if (data.success) {
-        setMessage("✅ Signup successful! You can now login.");
+        setMessage("✅ Registration successful! Redirecting to login...");
+        setTimeout(() => navigate('/login'), 2000);
       } else {
-        setMessage("❌ " + data.message);
+        setError(data.message);
       }
     } catch (err) {
-      setMessage("Server connection failed.");
+      setError("Server connection failed.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4 text-center">Student Signup</h2>
-        {message && <p className="mb-4 text-center font-bold text-sm">{message}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-900 p-6">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 md:p-10 border-t-8 border-green-500">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-black text-gray-900">Create Account 🎯</h2>
+          <p className="text-gray-500 text-sm mt-1">Join to buy and download premium notes</p>
+        </div>
+
+        {error && <div className="mb-4 bg-red-50 text-red-600 p-3 rounded-lg text-sm font-bold">{error}</div>}
+        {message && <div className="mb-4 bg-green-50 text-green-600 p-3 rounded-lg text-sm font-bold">{message}</div>}
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input 
-            type="text" 
-            name="username" 
-            placeholder="Username" 
-            required 
-            value={formData.username} 
-            onChange={handleChange} 
-            className="w-full p-3 border rounded-lg"
-          />
-          <input 
-            type="email" 
-            name="email" 
-            placeholder="Email" 
-            required 
-            value={formData.email} 
-            onChange={handleChange} 
-            className="w-full p-3 border rounded-lg"
-          />
-          <input 
-            type="password" 
-            name="password" 
-            placeholder="Password" 
-            required 
-            value={formData.password} 
-            onChange={handleChange} 
-            className="w-full p-3 border rounded-lg"
-          />
-          <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700">
-            Register
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Username</label>
+            <input 
+              type="text" 
+              name="username" 
+              required 
+              value={formData.username} 
+              onChange={handleChange} 
+              placeholder="Gopal Yadav"
+              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Email Address</label>
+            <input 
+              type="email" 
+              name="email" 
+              required 
+              value={formData.email} 
+              onChange={handleChange} 
+              placeholder="you@example.com"
+              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
+            <input 
+              type="password" 
+              name="password" 
+              required 
+              value={formData.password} 
+              onChange={handleChange} 
+              placeholder="••••••••"
+              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200"
+          >
+            {loading ? "Creating... ⏳" : "Register Now 🚀"}
           </button>
         </form>
+
+        <p className="text-center text-sm text-gray-600 mt-6">
+          Already have an account? <a href="/login" className="text-blue-600 font-bold hover:underline">Login</a>
+        </p>
       </div>
     </div>
   );
