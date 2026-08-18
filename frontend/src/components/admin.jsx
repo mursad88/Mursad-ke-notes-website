@@ -47,7 +47,7 @@ function Admin() {
 
   const fetchNotes = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/admin/all-notes');
+      const res = await fetch('https://mursad-ke-notes-website.onrender.com');
       const data = await res.json();
       if (data.success) setNotes(data.notes);
     } catch (err) {
@@ -77,7 +77,7 @@ function Admin() {
     if (sampleFile) submitData.append('sampleFile', sampleFile);
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/add-note', {
+      const res = await fetch('https://mursad-ke-notes-website.onrender.com', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: submitData

@@ -9,7 +9,7 @@ export default function ViewNote() {
 
   useEffect(() => {
     // डेटाबेस से इस खास नोट की पूरी डिटेल लाना
-    axios.get(`http://localhost:5000/api/admin/all-notes`)
+    axios.get(`https://mursad-ke-notes-website.onrender.com`)
       .then(response => {
         if (response.data.success) {
           const foundNote = response.data.notes.find(n => n._id === id);
