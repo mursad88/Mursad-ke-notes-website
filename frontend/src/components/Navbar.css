@@ -1,0 +1,106 @@
+/* Navbar का डिज़ाइन */
+.custom-navbar {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 65px;
+}
+
+.nav-logo a {
+  font-size: 20px;
+  font-weight: bold;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.nav-logo span {
+  color: #eab308;
+}
+
+/* डेस्कटॉप लिंक्स डिज़ाइन */
+.desktop-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.desktop-links a {
+  color: #374151;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.desktop-links .admin-btn {
+  background-color: #2563eb;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+/* मोबाइल बटन डिज़ाइन */
+.mobile-toggle {
+  display: none;
+}
+
+.mobile-toggle button {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.mobile-dropdown {
+  display: none;
+}
+
+/* --- यहाँ से शुरू होता है असली रिस्पॉन्सिव जादू (Media Query) --- */
+@media screen and (max-width: 768px) {
+  /* मोबाइल पर कंप्यूटर वाले लिंक्स छिप जाएंगे */
+  .desktop-links {
+    display: none !important;
+  }
+  
+  /* मोबाइल वाला बटन दिखने लगेगा */
+  .mobile-toggle {
+    display: block !important;
+  }
+
+  /* मोबाइल का खुलेगा हुआ मेनू */
+  .mobile-dropdown {
+    display: flex !important;
+    flex-direction: column;
+    background-color: #fff;
+    border-top: 1px solid #e5e7eb;
+    padding: 15px 20px;
+    gap: 12px;
+  }
+
+  .mobile-dropdown a {
+    color: #374151;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+  }
+
+  .mobile-dropdown .admin-btn-mob {
+    background-color: #2563eb;
+    color: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+  }
+}
