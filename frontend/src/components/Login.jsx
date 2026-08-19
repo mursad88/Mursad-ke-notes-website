@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const API_URL = "https://mursad-ke-notes-website.onrender.com";
 
@@ -8,10 +8,6 @@ function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,64 +27,58 @@ function Login() {
         setError(data.message);
       }
     } catch (err) {
-      setError("Server connection failed. Please try again.");
+      setError("Server error or waking up. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-900 p-6">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 md:p-10 border-t-8 border-blue-600">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-black text-gray-900">Welcome Back! 👋</h2>
-          <p className="text-gray-500 text-sm mt-1">Login to access your purchased notes</p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl w-full max-w-md p-8 md:p-10 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+        
+        <h2 className="text-3xl font-black text-white text-center mb-2">Welcome Back</h2>
+        <p className="text-slate-400 text-sm text-center mb-8">Enter your credentials to access your library</p>
 
-        {error && (
-          <div className="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-r-lg text-sm font-bold">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 p-3.5 rounded-2xl text-sm font-bold text-center">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Email Address</label>
+            <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Email Address</label>
             <input 
               type="email" 
-              name="email" 
               required 
               value={formData.email} 
-              onChange={handleChange} 
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })} 
               placeholder="you@example.com"
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+              className="w-full p-4 bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:border-blue-500 text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
+            <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Password</label>
             <input 
               type="password" 
-              name="password" 
               required 
               value={formData.password} 
-              onChange={handleChange} 
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })} 
               placeholder="••••••••"
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+              className="w-full p-4 bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:border-blue-500 text-sm"
             />
           </div>
 
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200"
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg transition duration-200"
           >
-            {loading ? "Logging in... ⏳" : "Login Securely 🚀"}
+            {loading ? "Authenticating... ⏳" : "Secure Login 🚀"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Don't have an account? <a href="/signup" className="text-blue-600 font-bold hover:underline">Sign up</a>
+        <p className="text-center text-sm text-slate-400 mt-8">
+          Don't have an account? <Link to="/signup" className="text-blue-400 font-bold hover:underline">Sign up</Link>
         </p>
       </div>
     </div>

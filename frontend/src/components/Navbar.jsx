@@ -1,57 +1,44 @@
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const isMobile = window.innerWidth <= 768;
-
+function Navbar() {
   return (
-    <nav style={{ backgroundColor: '#ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', position: 'sticky', top: 0, zIndex: 50, width: '100%' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 15px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '65px' }}>
-          
-          {/* Logo */}
+    <nav className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex justify-between items-center">
+        
+        {/* Logo / Brand Name */}
+        <Link to="/" className="text-2xl font-black tracking-tight flex items-center gap-2 group">
+          <span className="bg-blue-900 text-white w-9 h-9 rounded-xl flex items-center justify-center text-lg shadow-md group-hover:scale-105 transition">📚</span>
           <div>
-            <Link to="/" style={{ fontSize: '20px', fontWeight: 'bold', color: '#2563eb', textDecoration: 'none' }}>
-              Mursad ke <span style={{ color: '#eab308' }}>Notes</span>
-            </Link>
+            <span className="text-blue-900">Mursad ke</span>{" "}
+            <span className="text-amber-500">Notes</span>
           </div>
+        </Link>
 
-          {/* Desktop Links - अगर मोबाइल नहीं है तभी दिखेगा */}
-          {!isMobile ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <Link to="/" style={{ color: '#374151', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
-              <Link to="/dashboard" style={{ color: '#374151', textDecoration: 'none', fontWeight: 500 }}>Dashboard</Link>
-              <Link to="/login" style={{ color: '#374151', textDecoration: 'none', fontWeight: 500 }}>Login</Link>
-              <Link to="/admin-login" style={{ backgroundColor: '#2563eb', color: '#fff', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontWeight: 500 }}>
-                Admin Login
-              </Link>
-            </div>
-          ) : (
-            /* Mobile Hamburger Button - सिर्फ मोबाइल पर दिखेगा */
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                style={{ background: '#f3f4f6', border: '1px solid #d1d5db', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '20px' }}
-              >
-                {isOpen ? '✕' : '☰'}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Mobile Dropdown Menu */}
-      {isMobile && isOpen && (
-        <div style={{ backgroundColor: '#fff', borderTop: '1px solid #e5e7eb', padding: '15px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <Link to="/" onClick={() => setIsOpen(false)} style={{ color: '#374151', textDecoration: 'none', fontWeight: 500, fontSize: '16px' }}>Home</Link>
-          <Link to="/dashboard" onClick={() => setIsOpen(false)} style={{ color: '#374151', textDecoration: 'none', fontWeight: 500, fontSize: '16px' }}>Dashboard</Link>
-          <Link to="/login" onClick={() => setIsOpen(false)} style={{ color: '#374151', textDecoration: 'none', fontWeight: 500, fontSize: '16px' }}>Login</Link>
-          <Link to="/admin-login" onClick={() => setIsOpen(false)} style={{ backgroundColor: '#2563eb', color: '#fff', padding: '10px', borderRadius: '6px', textAlign: 'center', textDecoration: 'none', fontWeight: 500 }}>
-            Admin Login
+        {/* Navigation Links, Contact & Admin Button */}
+        <div className="flex items-center gap-5 md:gap-7 font-bold text-gray-600 text-sm md:text-base">
+          <Link to="/" className="hover:text-blue-600 transition duration-200">
+            Home
+          </Link>
+          <Link to="/dashboard" className="hover:text-blue-600 transition duration-200">
+            Dashboard
+          </Link>
+          <Link to="/contact" className="hover:text-blue-600 transition duration-200">
+            Contact
+          </Link>
+          <Link to="/login" className="hover:text-blue-600 transition duration-200">
+            Login
+          </Link>
+          <Link 
+            to="/admin" 
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-2xl shadow-lg shadow-blue-600/20 transition-all duration-200 flex items-center gap-2 text-sm font-extrabold hover:scale-105"
+          >
+            <span>👑</span> Admin
           </Link>
         </div>
-      )}
+
+      </div>
     </nav>
   );
 }
+
+export default Navbar;
