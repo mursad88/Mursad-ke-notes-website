@@ -28,9 +28,13 @@ app.use('/api/auth', authRoutes);
 const paymentRoutes = require('./routes/payment');
 app.use('/api/payment', paymentRoutes);
 
-
+// 3. एडमिन के रास्ते
 const adminRoute = require('./routes/admin');
 app.use('/api/admin', adminRoute);
+
+// 4. नोट्स (Notes) के रास्ते (यहाँ नया राउट जोड़ा गया है)
+const notesRoutes = require('./routes/notes');
+app.use('/api/notes', notesRoutes);
 // -------------------------------
 
 // सर्वर चालू करने का कोड
