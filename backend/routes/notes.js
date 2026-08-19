@@ -3,24 +3,28 @@ const router = express.Router();
 const Note = require('../models/Note'); // आपका नोट्स मॉडल
 
 // 1. सभी नोट्स देखने के लिए GET राउट
-router.get('/', async (routerReq, res) => {
+router.get('/', async (req, res) => {
   try {
     const notes = await Note.find(); // डेटाबेस से सारे नोट्स ला रहे हैं
     res.json({ success: true, notes });
   } catch (err) {
+    console.error("Fetch Notes Error:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// 2. नए नोट्स अपलोड करने के लिए POST राउट (जो पहले नहीं था)
-router.post('/upload', async (routerReq, res) => {
+// 2. नए नोट्स अपलोड करने के लिए POST राउट
+router.post('/upload', async (req, res) => {
   try {
-    const { title, category, sampleFile } = routerReq.body;
+    const { title, category, price, description, sampleFile, pdfFile } = req.body;
 
     const newNote = new Note({
       title,
       category,
-      sampleFile
+      price,
+      description,
+      sampleFile,
+      pdfFile
     });
 
     await newNote.save();
