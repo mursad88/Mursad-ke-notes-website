@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const API_URL = "https://mursad-ke-notes-website.onrender.com";
 
 function Dashboard() {
   const [userNotes, setUserNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserNotes = async () => {
@@ -16,7 +18,7 @@ function Dashboard() {
         const data = await res.json();
         if (data.success) setUserNotes(data.notes);
       } catch (err) {
-        console.error("Error fetching user notes:", err);
+        console.error("Error:", err);
       } finally {
         setLoading(false);
       }
@@ -26,52 +28,54 @@ function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12">
       <div className="max-w-5xl mx-auto space-y-8">
-        {/* Top Header Card */}
-        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-8 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
+        {/* Header */}
+        <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-6">
           <div>
-            <h1 className="text-3xl font-extrabold">Student Dashboard 🎓</h1>
-            <p className="text-blue-200 mt-1">Manage your purchased notes and secure downloads.</p>
+            <h1 className="text-3xl font-black">Student Dashboard 🎓</h1>
+            <p className="text-slate-400 mt-1">Access your purchased notes securely.</p>
           </div>
-          <button 
-            onClick={handleLogout} 
-            className="bg-red-500 hover:bg-red-600 text-white font-bold px-6 py-3 rounded-xl shadow transition"
-          >
-            Logout 🚪
-          </button>
+          <div className="flex gap-4">
+            <Link to="/" className="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 font-bold text-sm transition">
+              Home
+            </Link>
+            <button onClick={handleLogout} className="px-5 py-3 rounded-2xl bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white font-bold text-sm transition">
+              Logout 🚪
+            </button>
+          </div>
         </div>
 
-        {/* Purchased Notes Section */}
-        <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-4">My Library ({userNotes.length})</h2>
+        {/* Library Section */}
+        <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl">
+          <h2 className="text-2xl font-bold mb-6 border-b border-slate-800 pb-4">My Library ({userNotes.length})</h2>
 
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading your library...</div>
+            <div className="text-center py-12 text-slate-500">Loading library...</div>
           ) : userNotes.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <p className="text-lg mb-4">You haven't purchased any notes yet.</p>
-              <a href="/" className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition">
-                Browse Notes 📚
-              </a>
+            <div className="text-center py-12">
+              <p className="text-slate-400 mb-6">You haven't purchased any notes yet.</p>
+              <Link to="/" className="bg-blue-600 text-white px-8 py-3.5 rounded-2xl font-bold hover:bg-blue-500 transition shadow-lg">
+                Explore Notes 📚
+              </Link>
             </div>
           ) : (
             <div className="space-y-4">
               {userNotes.map((note) => (
-                <div key={note._id} className="p-5 bg-gray-50 rounded-2xl border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div key={note._id} className="p-5 bg-slate-800/50 border border-slate-700/60 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
                   <div>
-                    <h3 className="font-bold text-xl text-gray-800">{note.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1">Category: <span className="font-semibold text-blue-600">{note.category}</span></p>
+                    <h3 className="font-bold text-xl">{note.title}</h3>
+                    <p className="text-sm text-slate-400 mt-1">Category: <span className="text-blue-400">{note.category}</span></p>
                   </div>
                   <a 
                     href={`${API_URL}/api/notes/download/${note._id}`} 
                     target="_blank" 
                     rel="noreferrer"
-                    className="w-full md:w-auto bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition text-center shadow"
+                    className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold transition text-center shadow-lg"
                   >
                     📥 Download PDF
                   </a>
