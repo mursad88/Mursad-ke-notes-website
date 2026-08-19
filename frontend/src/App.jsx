@@ -4,8 +4,9 @@ import Admin from './components/admin';
 import Dashboard from './components/Dashboard'; 
 import Notes from './components/Notes';
 import Login from './components/Login';
+import Signup from './components/Signup'; // 👈 1. यहाँ Signup इम्पोर्ट किया गया है
 import ViewNote from './components/ViewNote';
-import Contact from './components/Contact'; // 👈 कॉन्टैक्ट पेज इम्पोर्ट किया गया
+import Contact from './components/Contact';
 
 function App() {
   const isAdminLoggedIn = localStorage.getItem('adminToken');
@@ -54,8 +55,9 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} /> {/* 👈 2. यहाँ Signup का राउट जोड़ दिया गया है */}
             <Route path="/view-note/:id" element={<ViewNote />} />
-            <Route path="/contact" element={<Contact />} /> {/* 👈 कॉन्टैक्ट रूट */}
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </main>
 
