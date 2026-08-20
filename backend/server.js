@@ -7,11 +7,10 @@ const cors = require('cors');
 
 const app = express();
 
-// मिडलवेयर (Middlewares)
+// मिडलवेयर (Middlewares) - फोटो अपलोड साइज की लिमिट हटाने के लिए limit: '50mb' जोड़ दिया है
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
-app.use(express.json());
-// यह लाइन डेटा को पढ़ने के लिए बहुत ज़रूरी है
-app.use(express.urlencoded({ extended: true }));
 
 // डेटाबेस (MongoDB) से जुड़ने का कोड
 mongoose.connect(process.env.MONGO_URI)
@@ -36,7 +35,7 @@ app.use('/api/admin', adminRoute);
 const notesRoutes = require('./routes/notes');
 app.use('/api/notes', notesRoutes);
 
-// 5. टीम (Team Members) के रास्ते 👈 यह नया जोड़ा है
+// 5. टीम (Team Members) के रास्ते
 const teamRoutes = require('./routes/team');
 app.use('/api/team', teamRoutes);
 // -------------------------------
