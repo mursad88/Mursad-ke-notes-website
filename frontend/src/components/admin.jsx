@@ -9,7 +9,8 @@ function Admin() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const [notes, setNotes] = useState([]);
-  const [formData, setFormData] = useState({ title: '', category: '', price: '', description: '', content: '' });
+  // 1. यहाँ validityDays जोड़ दिया है (डिफ़ॉल्ट 365 दिन यानी 1 साल)
+  const [formData, setFormData] = useState({ title: '', category: '', price: '', description: '', content: '', validityDays: '365' });
   const [pdfFile, setPdfFile] = useState(null);
   const [sampleFile, setSampleFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -75,6 +76,7 @@ function Admin() {
     submitData.append('price', formData.price);
     submitData.append('description', formData.description);
     submitData.append('content', formData.content);
+    submitData.append('validityDays', formData.validityDays); // 👈 वैलिडिटी डेटा जोड़ दिया
     if (pdfFile) submitData.append('pdfFile', pdfFile);
     if (sampleFile) submitData.append('sampleFile', sampleFile);
 
@@ -88,7 +90,7 @@ function Admin() {
 
       if (data.success) {
         alert("✅ " + data.message);
-        setFormData({ title: '', category: '', price: '', description: '', content: '' });
+        setFormData({ title: '', category: '', price: '', description: '', content: '', validityDays: '365' });
         setPdfFile(null);
         setSampleFile(null);
         document.getElementById('fileInput').value = '';
@@ -166,7 +168,7 @@ function Admin() {
         <div className="bg-blue-900 text-white p-6 rounded-xl shadow-md flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-extrabold">👑 Secure Admin Panel</h1>
-            <p className="text-blue-200 mt-1">Upload main notes and free sample PDFs easily.</p>
+            <p className="text-blue-200 mt-1">Upload main notes and set validity easily.</p>
           </div>
           <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold px-6 py-2 rounded-lg transition">
             Logout
@@ -177,7 +179,7 @@ function Admin() {
         <div className="bg-slate-900 text-white p-8 rounded-xl shadow-lg border border-slate-800">
           <h2 className="text-2xl font-bold mb-6 border-b border-slate-800 pb-3">Add New Note & PDFs</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div>
                 <label className="block text-sm font-bold text-slate-300 mb-2">Title</label>
                 <input 
@@ -213,6 +215,21 @@ function Admin() {
                   onChange={handleChange} 
                   className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-500 text-base shadow-sm"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-300 mb-2">Validity (दिन)</label>
+                <select 
+                  name="validityDays" 
+                  value={formData.validityDays} 
+                  onChange={handleChange} 
+                  className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 text-base shadow-sm"
+                >
+                  <option value="30">30 Days (1 महीना)</option>
+                  <option value="90">90 Days (3 महीने)</option>
+                  <option value="180">180 Days (6 महीने)</option>
+                  <option value="365">365 Days (1 साल)</option>
+                  <option value="730">730 Days (2 साल)</option>
+                </select>
               </div>
             </div>
 
@@ -253,7 +270,7 @@ function Admin() {
             <div key={item._id} className="py-4 flex justify-between items-center border-b border-slate-800">
               <div>
                 <h3 className="font-bold text-lg text-white">{item.title}</h3>
-                <p className="text-sm text-slate-400">{item.category} • <span className="text-emerald-400 font-bold">₹{item.price}</span></p>
+                <p className="text-sm text-slate-400">{item.category} • <span className="text-emerald-400 font-bold">₹{item.price}</span> • वैलिडिटी: {item.validityDays || 365} दिन</p>
               </div>
               <button onClick={() => handleDelete(item._id)} className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 text-sm">
                 🗑️ Delete
