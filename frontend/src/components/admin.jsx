@@ -124,18 +124,32 @@ function Admin() {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-t-8 border-blue-600">
-          <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-2">Admin Login</h2>
-          {loginError && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-bold mb-4 text-center">{loginError}</div>}
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
+        <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl w-full max-w-md border-t-8 border-blue-600">
+          <h2 className="text-3xl font-extrabold text-center mb-2">Admin Login</h2>
+          {loginError && <div className="bg-red-900/50 text-red-200 p-3 rounded-lg text-sm font-bold mb-4 text-center">{loginError}</div>}
           <form onSubmit={handleLoginSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Username</label>
-              <input type="text" name="username" required value={loginData.username} onChange={handleLoginChange} className="w-full p-3 border rounded-lg outline-none bg-gray-50"/>
+              <label className="block text-sm font-bold text-gray-300 mb-1">Username</label>
+              <input 
+                type="text" 
+                name="username" 
+                required 
+                value={loginData.username} 
+                onChange={handleLoginChange} 
+                className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-500 text-base shadow-sm"
+              />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
-              <input type="password" name="password" required value={loginData.password} onChange={handleLoginChange} className="w-full p-3 border rounded-lg outline-none bg-gray-50"/>
+              <label className="block text-sm font-bold text-gray-300 mb-1">Password</label>
+              <input 
+                type="password" 
+                name="password" 
+                required 
+                value={loginData.password} 
+                onChange={handleLoginChange} 
+                className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-500 text-base shadow-sm"
+              />
             </div>
             <button type="submit" disabled={isLoggingIn} className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
               {isLoggingIn ? "Logging in..." : "Login 🚀"}
@@ -147,7 +161,7 @@ function Admin() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6 md:p-10">
+    <div className="bg-slate-950 min-h-screen p-6 md:p-10 text-slate-100">
       <div className="max-w-6xl mx-auto space-y-10">
         <div className="bg-blue-900 text-white p-6 rounded-xl shadow-md flex justify-between items-center">
           <div>
@@ -160,37 +174,69 @@ function Admin() {
         </div>
 
         {/* Add Note Form */}
-        <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Add New Note & PDFs</h2>
+        <div className="bg-slate-900 text-white p-8 rounded-xl shadow-lg border border-slate-800">
+          <h2 className="text-2xl font-bold mb-6 border-b border-slate-800 pb-3">Add New Note & PDFs</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Title</label>
-                <input type="text" name="title" required placeholder="e.g. Tally Prime Notes" value={formData.title} onChange={handleChange} className="w-full p-3 border rounded-lg outline-none"/>
+                <label className="block text-sm font-bold text-slate-300 mb-2">Title</label>
+                <input 
+                  type="text" 
+                  name="title" 
+                  required 
+                  placeholder="e.g. Tally Prime Notes" 
+                  value={formData.title} 
+                  onChange={handleChange} 
+                  className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-500 text-base shadow-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
-                <input type="text" name="category" required placeholder="e.g. Accounting" value={formData.category} onChange={handleChange} className="w-full p-3 border rounded-lg outline-none"/>
+                <label className="block text-sm font-bold text-slate-300 mb-2">Category</label>
+                <input 
+                  type="text" 
+                  name="category" 
+                  required 
+                  placeholder="e.g. Accounting" 
+                  value={formData.category} 
+                  onChange={handleChange} 
+                  className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-500 text-base shadow-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Price (₹)</label>
-                <input type="number" name="price" required placeholder="99" value={formData.price} onChange={handleChange} className="w-full p-3 border rounded-lg outline-none"/>
+                <label className="block text-sm font-bold text-slate-300 mb-2">Price (₹)</label>
+                <input 
+                  type="number" 
+                  name="price" 
+                  required 
+                  placeholder="99" 
+                  value={formData.price} 
+                  onChange={handleChange} 
+                  className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-500 text-base shadow-sm"
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
-              <textarea name="description" required rows="2" placeholder="Short description..." value={formData.description} onChange={handleChange} className="w-full p-3 border rounded-lg outline-none"></textarea>
+              <label className="block text-sm font-bold text-slate-300 mb-2">Description</label>
+              <textarea 
+                name="description" 
+                required 
+                rows="3" 
+                placeholder="Short description..." 
+                value={formData.description} 
+                onChange={handleChange} 
+                className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-500 text-base shadow-sm resize-none"
+              ></textarea>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-blue-50 p-4 border-2 border-dashed border-blue-300 rounded-lg">
-                <label className="block text-sm font-bold text-blue-800 mb-2">Main PDF File (Paid)</label>
-                <input type="file" id="fileInput" accept=".pdf" onChange={(e) => setPdfFile(e.target.files[0])} className="w-full text-sm text-gray-600"/>
+              <div className="bg-slate-950 p-4 border-2 border-dashed border-blue-500/50 rounded-lg">
+                <label className="block text-sm font-bold text-blue-400 mb-2">Main PDF File (Paid)</label>
+                <input type="file" id="fileInput" accept=".pdf" onChange={(e) => setPdfFile(e.target.files[0])} className="w-full text-sm text-slate-300"/>
               </div>
-              <div className="bg-yellow-50 p-4 border-2 border-dashed border-yellow-300 rounded-lg">
-                <label className="block text-sm font-bold text-yellow-800 mb-2">Sample PDF File (Free Preview)</label>
-                <input type="file" id="sampleInput" accept=".pdf" onChange={(e) => setSampleFile(e.target.files[0])} className="w-full text-sm text-gray-600"/>
+              <div className="bg-slate-950 p-4 border-2 border-dashed border-yellow-500/50 rounded-lg">
+                <label className="block text-sm font-bold text-yellow-400 mb-2">Sample PDF File (Free Preview)</label>
+                <input type="file" id="sampleInput" accept=".pdf" onChange={(e) => setSampleFile(e.target.files[0])} className="w-full text-sm text-slate-300"/>
               </div>
             </div>
 
@@ -201,13 +247,13 @@ function Admin() {
         </div>
 
         {/* Notes List */}
-        <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Published Notes ({notes.length})</h2>
+        <div className="bg-slate-900 text-white p-8 rounded-xl shadow-lg border border-slate-800">
+          <h2 className="text-2xl font-bold mb-6 border-b border-slate-800 pb-3">Published Notes ({notes.length})</h2>
           {notes.map((item) => (
-            <div key={item._id} className="py-4 flex justify-between items-center border-b">
+            <div key={item._id} className="py-4 flex justify-between items-center border-b border-slate-800">
               <div>
-                <h3 className="font-bold text-lg text-gray-800">{item.title}</h3>
-                <p className="text-sm text-gray-500">{item.category} • <span className="text-green-600 font-bold">₹{item.price}</span></p>
+                <h3 className="font-bold text-lg text-white">{item.title}</h3>
+                <p className="text-sm text-slate-400">{item.category} • <span className="text-emerald-400 font-bold">₹{item.price}</span></p>
               </div>
               <button onClick={() => handleDelete(item._id)} className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 text-sm">
                 🗑️ Delete
