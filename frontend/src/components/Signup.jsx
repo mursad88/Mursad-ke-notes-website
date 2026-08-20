@@ -60,7 +60,7 @@ function Signup() {
               value={formData.username} 
               onChange={handleChange} 
               placeholder="Gopal Yadav"
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+              className="w-full p-4 bg-slate-900 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-400 text-base shadow-sm"
             />
           </div>
 
@@ -73,7 +73,7 @@ function Signup() {
               value={formData.email} 
               onChange={handleChange} 
               placeholder="you@example.com"
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+              className="w-full p-4 bg-slate-900 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-400 text-base shadow-sm"
             />
           </div>
 
@@ -86,7 +86,7 @@ function Signup() {
               value={formData.password} 
               onChange={handleChange} 
               placeholder="••••••••"
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+              className="w-full p-4 bg-slate-900 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500 placeholder-slate-400 text-base shadow-sm"
             />
           </div>
 
