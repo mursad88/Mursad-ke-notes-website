@@ -35,6 +35,10 @@ app.use('/api/admin', adminRoute);
 // 4. नोट्स (Notes) के रास्ते
 const notesRoutes = require('./routes/notes');
 app.use('/api/notes', notesRoutes);
+
+// 5. टीम (Team Members) के रास्ते 👈 यह नया जोड़ा है
+const teamRoutes = require('./routes/team');
+app.use('/api/team', teamRoutes);
 // -------------------------------
 
 // सर्वर चालू करने का कोड
