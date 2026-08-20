@@ -13,10 +13,24 @@ router.get('/', async (req, res) => {
   }
 });
 
+// 1.5. किसी एक सिंगल नोट को उसकी ID से देखने के लिए GET राउट
+router.get('/:id', async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) {
+      return res.status(404).json({ success: false, message: "Note not found" });
+    }
+    res.json({ success: true, note });
+  } catch (err) {
+    console.error("Fetch Single Note Error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // 2. नए नोट्स अपलोड करने के लिए POST राउट (लॉग के साथ)
 router.post('/upload', async (req, res) => {
   try {
-    console.log("📥 फ्रंटएंड से आया हुआ डेटा:", req.body); // यह Render के लॉग्स में दिखेगा
+    console.log("📥 फ्रंटएंड से आया हुआ डेटा:", req.body);
 
     const { title, category, price, description, sampleFile, pdfFile } = req.body;
 
