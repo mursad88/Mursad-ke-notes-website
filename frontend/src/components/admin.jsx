@@ -8,12 +8,18 @@ function Admin() {
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+  // Notes States
   const [notes, setNotes] = useState([]);
-  // 1. यहाँ validityDays जोड़ दिया है (डिफ़ॉल्ट 365 दिन यानी 1 साल)
   const [formData, setFormData] = useState({ title: '', category: '', price: '', description: '', content: '', validityDays: '365' });
   const [pdfFile, setPdfFile] = useState(null);
   const [sampleFile, setSampleFile] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Team States
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [teamData, setTeamData] = useState({ name: '', role: '', description: '' });
+  const [teamPhotoBase64, setTeamPhotoBase64] = useState('');
+  const [teamLoading, setTeamLoading] = useState(false);
 
   const handleLoginChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -58,8 +64,21 @@ function Admin() {
     }
   };
 
+  const fetchTeam = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/team`);
+      const data = await res.json();
+      if (data.success) setTeamMembers(data.members);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    if (token) fetchNotes();
+    if (token) {
+      fetchNotes();
+      fetchTeam();
+    }
   }, [token]);
 
   const handleChange = (e) => {
@@ -76,7 +95,7 @@ function Admin() {
     submitData.append('price', formData.price);
     submitData.append('description', formData.description);
     submitData.append('content', formData.content);
-    submitData.append('validityDays', formData.validityDays); // 👈 वैलिडिटी डेटा जोड़ दिया
+    submitData.append('validityDays', formData.validityDays);
     if (pdfFile) submitData.append('pdfFile', pdfFile);
     if (sampleFile) submitData.append('sampleFile', sampleFile);
 
@@ -118,6 +137,70 @@ function Admin() {
       if (data.success) {
         alert("Note deleted!");
         fetchNotes();
+      }
+    } catch (err) {
+      alert("Delete failed.");
+    }
+  };
+
+  // Team Functions
+  const handleTeamPhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setTeamPhotoBase64(reader.result);
+      };
+    }
+  };
+
+  const handleTeamSubmit = async (e) => {
+    e.preventDefault();
+    if (!teamPhotoBase64) {
+      alert("कृपया मेंबर की फोटो चुनें!");
+      return;
+    }
+    setTeamLoading(true);
+
+    try {
+      const res = await fetch(`${API_URL}/api/team/add`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ ...teamData, photo: teamPhotoBase64 })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        alert("✅ " + data.message);
+        setTeamData({ name: '', role: '', description: '' });
+        setTeamPhotoBase64('');
+        document.getElementById('teamPhotoInput').value = '';
+        fetchTeam();
+      } else {
+        alert("❌ " + data.message);
+      }
+    } catch (err) {
+      alert("Server error.");
+    } finally {
+      setTeamLoading(false);
+    }
+  };
+
+  const handleDeleteTeam = async (id) => {
+    if (!window.confirm("क्या आप सच में इस मेंबर को हटाना चाहते हैं?")) return;
+    try {
+      const res = await fetch(`${API_URL}/api/team/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("टीम मेंबर हटा दिया गया!");
+        fetchTeam();
       }
     } catch (err) {
       alert("Delete failed.");
@@ -168,7 +251,7 @@ function Admin() {
         <div className="bg-blue-900 text-white p-6 rounded-xl shadow-md flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-extrabold">👑 Secure Admin Panel</h1>
-            <p className="text-blue-200 mt-1">Upload main notes and set validity easily.</p>
+            <p className="text-blue-200 mt-1">Manage Notes, Validity & Team Members easily.</p>
           </div>
           <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold px-6 py-2 rounded-lg transition">
             Logout
@@ -261,6 +344,82 @@ function Admin() {
               {loading ? "Publishing... ⏳" : "➕ Publish Note"}
             </button>
           </form>
+        </div>
+
+        {/* Add Team Member Section */}
+        <div className="bg-slate-900 text-white p-8 rounded-xl shadow-lg border border-slate-800">
+          <h2 className="text-2xl font-bold mb-6 border-b border-slate-800 pb-3">Add Team Member 👨‍💻</h2>
+          <form onSubmit={handleTeamSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-300 mb-2">Member Name</label>
+                <input 
+                  type="text" 
+                  required 
+                  placeholder="e.g. Gopal Yadav" 
+                  value={teamData.name} 
+                  onChange={(e) => setTeamData({...teamData, name: e.target.value})} 
+                  className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-300 mb-2">Role / Title</label>
+                <input 
+                  type="text" 
+                  required 
+                  placeholder="e.g. Developer" 
+                  value={teamData.role} 
+                  onChange={(e) => setTeamData({...teamData, role: e.target.value})} 
+                  className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div className="bg-slate-950 p-4 border-2 border-dashed border-purple-500/50 rounded-lg">
+                <label className="block text-sm font-bold text-purple-400 mb-2">Upload Photo</label>
+                <input 
+                  type="file" 
+                  id="teamPhotoInput" 
+                  accept="image/*" 
+                  onChange={handleTeamPhotoChange} 
+                  className="w-full text-sm text-slate-300"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-300 mb-2">Short Description</label>
+              <input 
+                type="text" 
+                required 
+                placeholder="e.g. वेबसाइट संभालते हैं" 
+                value={teamData.description} 
+                onChange={(e) => setTeamData({...teamData, description: e.target.value})} 
+                className="w-full p-4 bg-slate-950 border-2 border-slate-700 text-white rounded-xl focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <button type="submit" disabled={teamLoading} className="bg-purple-600 text-white font-bold px-8 py-3 rounded-lg hover:bg-purple-700 transition w-full md:w-auto">
+              {teamLoading ? "Adding... ⏳" : "➕ Add Team Member"}
+            </button>
+          </form>
+
+          {/* Team Members List */}
+          <div className="mt-8 pt-6 border-t border-slate-800">
+            <h3 className="text-lg font-bold mb-4">Current Team Members ({teamMembers.length})</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {teamMembers.map(member => (
+                <div key={member._id} className="flex items-center gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                  <img src={member.photo} alt={member.name} className="w-12 h-12 rounded-full object-cover border-2 border-purple-500" />
+                  <div className="flex-1">
+                    <h4 className="font-bold text-sm">{member.name}</h4>
+                    <p className="text-xs text-slate-400">{member.role}</p>
+                  </div>
+                  <button onClick={() => handleDeleteTeam(member._id)} className="text-red-500 hover:text-red-400 font-bold text-xl">
+                    🗑️
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Notes List */}

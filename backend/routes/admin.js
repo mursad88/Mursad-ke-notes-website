@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Note = require('../models/Note');
+const Team = require('../models/Team'); // 👈 टीम मॉडल जोड़ दिया
 const multer = require('multer');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
@@ -42,12 +43,13 @@ router.post('/login', (req, res) => {
   }
 });
 
+// 1. नोट जोड़ने का राउट (ValidityDays के साथ)
 router.post('/add-note', verifyAdmin, upload.fields([
   { name: 'pdfFile', maxCount: 1 },
   { name: 'sampleFile', maxCount: 1 }
 ]), async (req, res) => {
   try {
-    const { title, category, price, description, content } = req.body;
+    const { title, category, price, description, content, validityDays } = req.body;
     let pdfFilePath = "";
     let sampleFilePath = "";
 
@@ -65,7 +67,8 @@ router.post('/add-note', verifyAdmin, upload.fields([
       description, 
       content, 
       pdfFile: pdfFilePath,
-      sampleFile: sampleFilePath 
+      sampleFile: sampleFilePath,
+      validityDays: validityDays ? Number(validityDays) : 365 // 👈 वैलिडिटी सेव होगी
     });
     
     await newNote.save();
@@ -91,6 +94,48 @@ router.delete('/delete-note/:id', verifyAdmin, async (req, res) => {
     res.status(200).json({ success: true, message: "Note deleted successfully." });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error deleting note." });
+  }
+});
+
+// ===================== TEAM ROUTES (एडमिन के लिए टीम मैनेजमेंट) =====================
+
+// सभी टीम मेंबर देखने के लिए
+router.get('/team-members', async (req, res) => {
+  try {
+    const members = await Team.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, members });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error loading team members." });
+  }
+});
+
+// नया टीम मेंबर जोड़ने के लिए
+router.post('/add-team', verifyAdmin, async (req, res) => {
+  try {
+    const { name, role, description, photo } = req.body;
+
+    const newMember = new Team({
+      name,
+      role,
+      description,
+      photo
+    });
+
+    await newMember.save();
+    res.status(201).json({ success: true, message: "Team member added successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error!" });
+  }
+});
+
+// टीम मेंबर डिलीट करने के लिए
+router.delete('/delete-team/:id', verifyAdmin, async (req, res) => {
+  try {
+    await Team.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, message: "Team member deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error deleting team member." });
   }
 });
 
