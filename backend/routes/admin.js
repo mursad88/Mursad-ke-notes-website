@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Note = require('../models/Note');
-const Team = require('../models/Team'); // 👈 टीम मॉडल जोड़ दिया
+const Team = require('../models/Team'); 
 const multer = require('multer');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
@@ -43,7 +43,7 @@ router.post('/login', (req, res) => {
   }
 });
 
-// 1. नोट जोड़ने का राउट (ValidityDays के साथ)
+// 1. नोट जोड़ने का राउट
 router.post('/add-note', verifyAdmin, upload.fields([
   { name: 'pdfFile', maxCount: 1 },
   { name: 'sampleFile', maxCount: 1 }
@@ -68,7 +68,7 @@ router.post('/add-note', verifyAdmin, upload.fields([
       content, 
       pdfFile: pdfFilePath,
       sampleFile: sampleFilePath,
-      validityDays: validityDays ? Number(validityDays) : 365 // 👈 वैलिडिटी सेव होगी
+      validityDays: validityDays ? Number(validityDays) : 365 
     });
     
     await newNote.save();
@@ -76,6 +76,37 @@ router.post('/add-note', verifyAdmin, upload.fields([
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error!" });
+  }
+});
+
+// 🔄 2. नोट अपडेट (Edit) करने का नया राउट
+router.put('/update-note/:id', verifyAdmin, upload.fields([
+  { name: 'pdfFile', maxCount: 1 },
+  { name: 'sampleFile', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const { title, category, price, description, content, validityDays } = req.body;
+    let updateData = { 
+      title, 
+      category, 
+      price, 
+      description, 
+      content, 
+      validityDays: validityDays ? Number(validityDays) : 365 
+    };
+
+    if (req.files && req.files['pdfFile']) {
+      updateData.pdfFile = req.files['pdfFile'][0].path.replace(/\\/g, "/");
+    }
+    if (req.files && req.files['sampleFile']) {
+      updateData.sampleFile = req.files['sampleFile'][0].path.replace(/\\/g, "/");
+    }
+
+    await Note.findByIdAndUpdate(req.params.id, updateData);
+    res.status(200).json({ success: true, message: "Note updated successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server update error!" });
   }
 });
 
@@ -99,7 +130,6 @@ router.delete('/delete-note/:id', verifyAdmin, async (req, res) => {
 
 // ===================== TEAM ROUTES (एडमिन के लिए टीम मैनेजमेंट) =====================
 
-// सभी टीम मेंबर देखने के लिए
 router.get('/team-members', async (req, res) => {
   try {
     const members = await Team.find().sort({ createdAt: -1 });
@@ -109,18 +139,10 @@ router.get('/team-members', async (req, res) => {
   }
 });
 
-// नया टीम मेंबर जोड़ने के लिए
 router.post('/add-team', verifyAdmin, async (req, res) => {
   try {
     const { name, role, description, photo } = req.body;
-
-    const newMember = new Team({
-      name,
-      role,
-      description,
-      photo
-    });
-
+    const newMember = new Team({ name, role, description, photo });
     await newMember.save();
     res.status(201).json({ success: true, message: "Team member added successfully!" });
   } catch (error) {
@@ -129,7 +151,21 @@ router.post('/add-team', verifyAdmin, async (req, res) => {
   }
 });
 
-// टीम मेंबर डिलीट करने के लिए
+// 🔄 3. टीम मेंबर अपडेट (Edit) करने का नया राउट
+router.put('/update-team/:id', verifyAdmin, async (req, res) => {
+  try {
+    const { name, role, description, photo } = req.body;
+    let updateData = { name, role, description };
+    if (photo) updateData.photo = photo;
+
+    await Team.findByIdAndUpdate(req.params.id, updateData);
+    res.status(200).json({ success: true, message: "Team member updated successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server update error!" });
+  }
+});
+
 router.delete('/delete-team/:id', verifyAdmin, async (req, res) => {
   try {
     await Team.findByIdAndDelete(req.params.id);
