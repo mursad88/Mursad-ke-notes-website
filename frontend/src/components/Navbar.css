@@ -1,4 +1,4 @@
-/* Navbar का डिज़ाइन */
+/* Navbar का डिज़ाइन */
 .custom-navbar {
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -29,7 +29,7 @@
   color: #eab308;
 }
 
-/* डेस्कटॉप लिंक्स डिज़ाइन */
+/* डेस्कटॉप लिंक्स डिज़ाइन */
 .desktop-links {
   display: flex;
   align-items: center;
@@ -42,14 +42,7 @@
   font-weight: 500;
 }
 
-.desktop-links .admin-btn {
-  background-color: #2563eb;
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 6px;
-}
-
-/* मोबाइल बटन डिज़ाइन */
+/* मोबाइल बटन डिज़ाइन */
 .mobile-toggle {
   display: none;
 }
@@ -94,13 +87,5 @@
     text-decoration: none;
     font-weight: 500;
     font-size: 16px;
-  }
-
-  .mobile-dropdown .admin-btn-mob {
-    background-color: #2563eb;
-    color: #fff;
-    padding: 10px;
-    border-radius: 6px;
-    text-align: center;
   }
 }
