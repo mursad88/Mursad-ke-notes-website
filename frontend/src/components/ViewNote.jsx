@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const API_URL = "https://mursad-ke-notes-website.onrender.com";
 
 function ViewNote() {
   const { id } = useParams();
+  const navigate = useNavigate(); // 👈 Login page par bhejne ke liye navigate hook
   const [note, setNote] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -13,7 +14,6 @@ function ViewNote() {
     const fetchNoteDetail = async () => {
       try {
         const { data } = await axios.get(`${API_URL}/api/notes/${id}`);
-        // यहाँ चेक कर रहे हैं कि डेटा कैसे आ रहा है (डेटा या डेटा.note)
         if (data.success) {
           setNote(data.note || data.notes || data);
         } else if (data.title) {
@@ -31,8 +31,10 @@ function ViewNote() {
   const handleBuy = async () => {
     try {
       const token = localStorage.getItem('token');
+      // 🚀 Agar token nahi hai (User login nahi hai), toh seedha Login page par bhej do
       if (!token) {
-        alert("Please login first to buy notes!");
+        alert("कृपया पहले लॉगिन करें!");
+        navigate('/login');
         return;
       }
 
@@ -73,7 +75,13 @@ function ViewNote() {
       }
     } catch (err) {
       console.error("Payment initiation failed", err);
-      alert("Payment initiation failed. Please try again.");
+      // Agar token expire ho gaya ho ya unauthorized ho, toh bhi login page par bhej sakte hain
+      if (err.response && err.response.status === 401) {
+        alert("सत्र समाप्त हो गया है, कृपया दोबारा लॉगिन करें।");
+        navigate('/login');
+      } else {
+        alert("Payment initiation failed. Please try again.");
+      }
     }
   };
 
