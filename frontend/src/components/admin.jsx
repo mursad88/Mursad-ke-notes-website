@@ -14,12 +14,14 @@ function Admin() {
   const [pdfFile, setPdfFile] = useState(null);
   const [sampleFile, setSampleFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState(null); // 👈 Note Edit ID
 
   // Team States
   const [teamMembers, setTeamMembers] = useState([]);
   const [teamData, setTeamData] = useState({ name: '', role: '', description: '' });
   const [teamPhotoBase64, setTeamPhotoBase64] = useState('');
   const [teamLoading, setTeamLoading] = useState(false);
+  const [editingTeamId, setEditingTeamId] = useState(null); // 👈 Team Edit ID
 
   const handleLoginChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -100,8 +102,16 @@ function Admin() {
     if (sampleFile) submitData.append('sampleFile', sampleFile);
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/add-note`, {
-        method: 'POST',
+      let url = `${API_URL}/api/admin/add-note`;
+      let method = 'POST';
+
+      if (editingNoteId) {
+        url = `${API_URL}/api/admin/update-note/${editingNoteId}`;
+        method = 'PUT';
+      }
+
+      const res = await fetch(url, {
+        method: method,
         headers: { 'Authorization': `Bearer ${token}` },
         body: submitData
       });
@@ -112,8 +122,9 @@ function Admin() {
         setFormData({ title: '', category: '', price: '', description: '', content: '', validityDays: '365' });
         setPdfFile(null);
         setSampleFile(null);
-        document.getElementById('fileInput').value = '';
-        document.getElementById('sampleInput').value = '';
+        setEditingNoteId(null);
+        if(document.getElementById('fileInput')) document.getElementById('fileInput').value = '';
+        if(document.getElementById('sampleInput')) document.getElementById('sampleInput').value = '';
         fetchNotes();
       } else {
         alert("❌ " + data.message);
@@ -124,6 +135,20 @@ function Admin() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // ✏️ Edit Note Click Handler
+  const handleEditNote = (item) => {
+    setEditingNoteId(item._id);
+    setFormData({
+      title: item.title,
+      category: item.category,
+      price: item.price,
+      description: item.description,
+      content: item.content || '',
+      validityDays: item.validityDays || '365'
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
@@ -157,20 +182,31 @@ function Admin() {
 
   const handleTeamSubmit = async (e) => {
     e.preventDefault();
-    if (!teamPhotoBase64) {
+    if (!editingTeamId && !teamPhotoBase64) {
       alert("कृपया मेंबर की फोटो चुनें!");
       return;
     }
     setTeamLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/team/add`, {
-        method: 'POST',
+      let url = `${API_URL}/api/team/add`;
+      let method = 'POST';
+
+      if (editingTeamId) {
+        url = `${API_URL}/api/team/update/${editingTeamId}`;
+        method = 'PUT';
+      }
+
+      const bodyData = { ...teamData };
+      if (teamPhotoBase64) bodyData.photo = teamPhotoBase64;
+
+      const res = await fetch(url, {
+        method: method,
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}` 
         },
-        body: JSON.stringify({ ...teamData, photo: teamPhotoBase64 })
+        body: JSON.stringify(bodyData)
       });
       const data = await res.json();
 
@@ -178,7 +214,8 @@ function Admin() {
         alert("✅ " + data.message);
         setTeamData({ name: '', role: '', description: '' });
         setTeamPhotoBase64('');
-        document.getElementById('teamPhotoInput').value = '';
+        setEditingTeamId(null);
+        if(document.getElementById('teamPhotoInput')) document.getElementById('teamPhotoInput').value = '';
         fetchTeam();
       } else {
         alert("❌ " + data.message);
@@ -188,6 +225,17 @@ function Admin() {
     } finally {
       setTeamLoading(false);
     }
+  };
+
+  // ✏️ Edit Team Click Handler
+  const handleEditTeam = (member) => {
+    setEditingTeamId(member._id);
+    setTeamData({
+      name: member.name,
+      role: member.role,
+      description: member.description
+    });
+    window.scrollTo({ top: 400, behavior: 'smooth' });
   };
 
   const handleDeleteTeam = async (id) => {
@@ -258,9 +306,19 @@ function Admin() {
           </button>
         </div>
 
-        {/* Add Note Form */}
+        {/* Add / Update Note Form */}
         <div className="bg-slate-900 text-white p-8 rounded-xl shadow-lg border border-slate-800">
-          <h2 className="text-2xl font-bold mb-6 border-b border-slate-800 pb-3">Add New Note & PDFs</h2>
+          <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
+            <h2 className="text-2xl font-bold">{editingNoteId ? "✏️ Update Note" : "Add New Note & PDFs"}</h2>
+            {editingNoteId && (
+              <button 
+                onClick={() => { setEditingNoteId(null); setFormData({ title: '', category: '', price: '', description: '', content: '', validityDays: '365' }); }} 
+                className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg"
+              >
+                Cancel Edit ❌
+              </button>
+            )}
+          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div>
@@ -340,15 +398,25 @@ function Admin() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="bg-green-600 text-white font-bold px-8 py-3 rounded-lg hover:bg-green-700 transition w-full md:w-auto">
-              {loading ? "Publishing... ⏳" : "➕ Publish Note"}
+            <button type="submit" disabled={loading} className={`text-white font-bold px-8 py-3 rounded-lg transition w-full md:w-auto ${editingNoteId ? 'bg-amber-600 hover:bg-amber-700' : 'bg-green-600 hover:bg-green-700'}`}>
+              {loading ? "Processing... ⏳" : (editingNoteId ? "💾 Update Note" : "➕ Publish Note")}
             </button>
           </form>
         </div>
 
-        {/* Add Team Member Section */}
+        {/* Add / Update Team Member Section */}
         <div className="bg-slate-900 text-white p-8 rounded-xl shadow-lg border border-slate-800">
-          <h2 className="text-2xl font-bold mb-6 border-b border-slate-800 pb-3">Add Team Member 👨‍💻</h2>
+          <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
+            <h2 className="text-2xl font-bold">{editingTeamId ? "✏️ Update Team Member" : "Add Team Member 👨‍💻"}</h2>
+            {editingTeamId && (
+              <button 
+                onClick={() => { setEditingTeamId(null); setTeamData({ name: '', role: '', description: '' }); }} 
+                className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg"
+              >
+                Cancel Edit ❌
+              </button>
+            )}
+          </div>
           <form onSubmit={handleTeamSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
@@ -397,8 +465,8 @@ function Admin() {
               />
             </div>
 
-            <button type="submit" disabled={teamLoading} className="bg-purple-600 text-white font-bold px-8 py-3 rounded-lg hover:bg-purple-700 transition w-full md:w-auto">
-              {teamLoading ? "Adding... ⏳" : "➕ Add Team Member"}
+            <button type="submit" disabled={teamLoading} className={`text-white font-bold px-8 py-3 rounded-lg transition w-full md:w-auto ${editingTeamId ? 'bg-amber-600 hover:bg-amber-700' : 'bg-purple-600 hover:bg-purple-700'}`}>
+              {teamLoading ? "Processing... ⏳" : (editingTeamId ? "💾 Update Member" : "➕ Add Team Member")}
             </button>
           </form>
 
@@ -407,15 +475,22 @@ function Admin() {
             <h3 className="text-lg font-bold mb-4">Current Team Members ({teamMembers.length})</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {teamMembers.map(member => (
-                <div key={member._id} className="flex items-center gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                  <img src={member.photo} alt={member.name} className="w-12 h-12 rounded-full object-cover border-2 border-purple-500" />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-sm">{member.name}</h4>
-                    <p className="text-xs text-slate-400">{member.role}</p>
+                <div key={member._id} className="flex items-center gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800 justify-between">
+                  <div className="flex items-center gap-3">
+                    <img src={member.photo} alt={member.name} className="w-12 h-12 rounded-full object-cover border-2 border-purple-500" />
+                    <div>
+                      <h4 className="font-bold text-sm">{member.name}</h4>
+                      <p className="text-xs text-slate-400">{member.role}</p>
+                    </div>
                   </div>
-                  <button onClick={() => handleDeleteTeam(member._id)} className="text-red-500 hover:text-red-400 font-bold text-xl">
-                    🗑️
-                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEditTeam(member)} className="bg-amber-600/20 hover:bg-amber-600 text-amber-400 hover:text-white p-2 rounded-lg transition text-sm font-bold" title="Edit">
+                      ✏️
+                    </button>
+                    <button onClick={() => handleDeleteTeam(member._id)} className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-2 rounded-lg transition text-sm font-bold" title="Delete">
+                      🗑️
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -426,14 +501,19 @@ function Admin() {
         <div className="bg-slate-900 text-white p-8 rounded-xl shadow-lg border border-slate-800">
           <h2 className="text-2xl font-bold mb-6 border-b border-slate-800 pb-3">Published Notes ({notes.length})</h2>
           {notes.map((item) => (
-            <div key={item._id} className="py-4 flex justify-between items-center border-b border-slate-800">
+            <div key={item._id} className="py-4 flex justify-between items-center border-b border-slate-800 gap-4">
               <div>
                 <h3 className="font-bold text-lg text-white">{item.title}</h3>
                 <p className="text-sm text-slate-400">{item.category} • <span className="text-emerald-400 font-bold">₹{item.price}</span> • वैलिडिटी: {item.validityDays || 365} दिन</p>
               </div>
-              <button onClick={() => handleDelete(item._id)} className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 text-sm">
-                🗑️ Delete
-              </button>
+              <div className="flex gap-3">
+                <button onClick={() => handleEditNote(item)} className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition">
+                  ✏️ Edit
+                </button>
+                <button onClick={() => handleDelete(item._id)} className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 text-sm transition">
+                  🗑️ Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
