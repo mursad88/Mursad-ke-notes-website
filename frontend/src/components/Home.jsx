@@ -11,8 +11,6 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const categories = ['All', 'School', 'Graduate', 'Computer', 'Accounting'];
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,10 +32,14 @@ function Home() {
     fetchData();
   }, []);
 
+  // 1. डेटाबेस से मिलने वाले सभी नोट्स से यूनिक (Unique) कैटेगरीज अपने आप निकाल लेंगे
+  const dynamicCategories = ['All', ...new Set(notes.map(note => note.category).filter(Boolean))];
+
+  // 2. सर्च और कैटेगरी के हिसाब से नोट्स को फिल्टर करना
   const filteredNotes = notes.filter((note) => {
     const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           note.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || note.category.toLowerCase() === selectedCategory.toLowerCase();
+    const matchesCategory = selectedCategory === 'All' || note.category?.toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
@@ -46,34 +48,6 @@ function Home() {
       
       {/* Background Glow Effect */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[350px] bg-blue-600/10 blur-[140px] rounded-full pointer-events-none"></div>
-
-      {/* Navbar (अब यहाँ से Login बटन हटा दिया गया है, नेविगेशन बिल्कुल साफ़ है) */}
-      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/70 border-b border-slate-800/80 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex justify-between items-center">
-          
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-105 transition">
-              <span className="text-xl">📚</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-black bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent tracking-tight">
-                Mursad Notes
-              </h1>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Premium Study Hub</p>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-3 md:gap-4">
-            <Link 
-              to="/signup" 
-              className="px-5 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/30 hover:scale-105 transition"
-            >
-              Get Started 🚀
-            </Link>
-          </div>
-
-        </div>
-      </nav>
 
       {/* Hero Section */}
       <header className="py-20 px-6 text-center max-w-4xl mx-auto relative z-10">
@@ -90,7 +64,7 @@ function Home() {
         </h2>
         
         <p className="text-slate-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto font-medium">
-          Find clean, structured notes tailored specifically for School, Graduate, and Computer courses.
+          Find clean, structured notes tailored specifically for your courses and exams.
         </p>
 
         {/* Search Bar */}
@@ -106,20 +80,20 @@ function Home() {
         </div>
       </header>
 
-      {/* Categories Filter Buttons */}
+      {/* Dynamic Categories Filter Buttons (एडमिन द्वारा डाली गई कैटेगरीज यहाँ खुद-ब-खुद आएंगी) */}
       <div className="max-w-7xl mx-auto px-6 mb-12 relative z-10">
         <div className="flex flex-wrap justify-center gap-3">
-          {categories.map((cat, index) => (
+          {dynamicCategories.map((cat, index) => (
             <button
               key={index}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-md flex items-center gap-2 ${
+              className={`px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-md flex items-center gap-2 capitalize ${
                 selectedCategory === cat 
                   ? 'bg-blue-600 text-white shadow-blue-600/30 scale-105' 
                   : 'bg-slate-900/80 text-slate-400 border border-slate-800 hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <span>{cat === 'School' ? '🏫' : cat === 'Graduate' ? '🎓' : cat === 'Computer' ? '💻' : cat === 'Accounting' ? '📊' : '📂'}</span>
+              <span>{cat === 'All' ? '📂' : '🏷️'}</span>
               {cat}
             </button>
           ))}
@@ -129,7 +103,7 @@ function Home() {
       {/* Notes Grid Section */}
       <main className="max-w-7xl mx-auto px-6 pb-24 relative z-10">
         <div className="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
-          <h3 className="text-2xl font-extrabold flex items-center gap-3">
+          <h3 className="text-2xl font-extrabold flex items-center gap-3 capitalize">
             <span className="w-2.5 h-7 bg-blue-500 rounded-full inline-block"></span>
             {selectedCategory === 'All' ? 'All Available Notes' : `${selectedCategory} Notes`} 
             <span className="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-full">
@@ -145,12 +119,12 @@ function Home() {
           </div>
         ) : filteredNotes.length === 0 ? (
           <div className="text-center py-24 text-slate-500 bg-slate-900/40 rounded-3xl border border-slate-800/80 backdrop-blur-sm">
-            <p className="text-xl mb-2">📂 No notes found in this category</p>
-            <p className="text-sm text-slate-600">Try selecting another department or clearing search.</p>
+            <p className="text-xl mb-2">📂 No notes found</p>
+            <p className="text-sm text-slate-600">Try selecting another category or clearing search.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {filteredNotes.map((note, idx) => (
+            {filteredNotes.map((note) => (
               <div 
                 key={note._id} 
                 className="bg-slate-900/70 backdrop-blur-md rounded-3xl p-6 border border-slate-800/80 hover:border-blue-500/50 shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
@@ -160,11 +134,6 @@ function Home() {
                     <span className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                       {note.category}
                     </span>
-                    {idx === 0 && (
-                      <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
-                        🔥 Popular
-                      </span>
-                    )}
                   </div>
                   <h4 className="text-xl font-bold mb-2 group-hover:text-blue-400 transition line-clamp-1">{note.title}</h4>
                   <p className="text-slate-400 text-sm line-clamp-3 mb-6 leading-relaxed">{note.description}</p>
@@ -215,7 +184,7 @@ function Home() {
         </div>
       )}
 
-      {/* Footer (यहाँ फुटर में एडमिन पैनल का सीक्रेट लिंक जोड़ दिया गया है) */}
+      {/* Footer */}
       <footer className="border-t border-slate-800 py-8 text-center text-slate-500 text-sm bg-slate-950 relative z-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p>© 2026 Mursad Notes Website. All Rights Reserved.</p>
