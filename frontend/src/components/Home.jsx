@@ -6,27 +6,32 @@ const API_URL = "https://mursad-ke-notes-website.onrender.com";
 
 function Home() {
   const [notes, setNotes] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  // डेडीकेटेड कैटेगरी बटन
   const categories = ['All', 'School', 'Graduate', 'Computer', 'Accounting'];
 
   useEffect(() => {
-    const fetchNotes = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/notes`);
-        if (res.data.success) {
-          setNotes(res.data.notes);
+        const notesRes = await axios.get(`${API_URL}/api/notes`);
+        if (notesRes.data.success) {
+          setNotes(notesRes.data.notes);
+        }
+
+        const teamRes = await axios.get(`${API_URL}/api/team`);
+        if (teamRes.data.success) {
+          setTeamMembers(teamRes.data.members);
         }
       } catch (err) {
-        console.error("Error fetching notes:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchNotes();
+    fetchData();
   }, []);
 
   const filteredNotes = notes.filter((note) => {
@@ -42,11 +47,10 @@ function Home() {
       {/* Background Glow Effect */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[350px] bg-blue-600/10 blur-[140px] rounded-full pointer-events-none"></div>
 
-      {/* 🚀 Ultra-Professional & Modern Navbar */}
+      {/* Navbar (अब यहाँ से Login बटन हटा दिया गया है, नेविगेशन बिल्कुल साफ़ है) */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/70 border-b border-slate-800/80 shadow-2xl">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex justify-between items-center">
           
-          {/* Logo with Glow */}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-105 transition">
               <span className="text-xl">📚</span>
@@ -59,14 +63,7 @@ function Home() {
             </div>
           </Link>
 
-          {/* Navigation Actions */}
           <div className="flex items-center gap-3 md:gap-4">
-            <Link 
-              to="/login" 
-              className="px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 hover:border-slate-700 transition shadow-sm"
-            >
-              Login
-            </Link>
             <Link 
               to="/signup" 
               className="px-5 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/30 hover:scale-105 transition"
@@ -191,9 +188,45 @@ function Home() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800 py-8 text-center text-slate-500 text-sm bg-slate-950">
-        <p>© 2026 Mursad Notes Website. All Rights Reserved.</p>
+      {/* --- Dynamic Team Section --- */}
+      {teamMembers.length > 0 && (
+        <div className="py-16 bg-slate-900/40 border-t border-slate-800/80 text-white relative z-10">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-3">मिलिए हमारी टीम से 👨‍💻</h2>
+              <p className="text-slate-400">यह हैं वे चेहरे जो आपके लिए बेहतरीन नोट्स तैयार करने में दिन-रात मेहनत करते हैं।</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              {teamMembers.map((member) => (
+                <div key={member._id} className="bg-slate-900 p-5 rounded-2xl text-center border border-slate-800 shadow-lg hover:border-blue-500 transition duration-300">
+                  <img 
+                    src={member.photo} 
+                    alt={member.name} 
+                    className="w-24 h-24 mx-auto rounded-full object-cover mb-4 border-4 border-blue-600 shadow-md"
+                  />
+                  <h3 className="font-bold text-lg text-white">{member.name}</h3>
+                  <p className="text-xs text-blue-400 font-semibold mt-1">{member.role}</p>
+                  <p className="text-xs text-slate-400 mt-2">{member.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer (यहाँ फुटर में एडमिन पैनल का सीक्रेट लिंक जोड़ दिया गया है) */}
+      <footer className="border-t border-slate-800 py-8 text-center text-slate-500 text-sm bg-slate-950 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p>© 2026 Mursad Notes Website. All Rights Reserved.</p>
+          <Link 
+            to="/admin" 
+            className="text-xs text-slate-600 hover:text-blue-400 transition flex items-center gap-1 font-mono"
+            title="Secure Admin Access"
+          >
+            🔒 Admin Login
+          </Link>
+        </div>
       </footer>
     </div>
   );
