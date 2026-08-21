@@ -14,7 +14,7 @@ function Navbar() {
           </div>
         </Link>
 
-        {/* Navigation Links, Contact & Admin Button */}
+        {/* Navigation Links, Contact & Login (Admin button removed) */}
         <div className="flex items-center gap-5 md:gap-7 font-bold text-gray-600 text-sm md:text-base">
           <Link to="/" className="hover:text-blue-600 transition duration-200">
             Home
@@ -27,12 +27,6 @@ function Navbar() {
           </Link>
           <Link to="/login" className="hover:text-blue-600 transition duration-200">
             Login
-          </Link>
-          <Link 
-            to="/admin" 
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-2xl shadow-lg shadow-blue-600/20 transition-all duration-200 flex items-center gap-2 text-sm font-extrabold hover:scale-105"
-          >
-            <span>👑</span> Admin
           </Link>
         </div>
 
