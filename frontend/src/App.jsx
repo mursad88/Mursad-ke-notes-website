@@ -13,7 +13,7 @@ function App() {
     <Router>
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
         
-        {/* 🚀 Ultra-Professional Navbar (Admin button removed) */}
+        {/* 🚀 Ultra-Professional Navbar */}
         <nav className="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm text-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex flex-col sm:flex-row justify-between items-center sm:h-20 gap-3">
             
@@ -31,7 +31,15 @@ function App() {
               <Link to="/" className="hover:text-blue-600 transition">Home</Link>
               <Link to="/dashboard" className="hover:text-blue-600 transition">Dashboard</Link>
               <Link to="/contact" className="hover:text-blue-600 transition">Contact</Link>
-              <Link to="/login" className="hover:text-blue-600 transition">Login</Link>
+              
+              {/* Stylish New Login Button */}
+              <Link 
+                to="/login" 
+                className="relative group px-6 py-2.5 rounded-2xl font-extrabold text-sm text-blue-600 bg-blue-50 border border-blue-200/80 shadow-sm hover:shadow-md hover:bg-blue-600 hover:text-white transition-all duration-300 flex items-center gap-2 overflow-hidden"
+              >
+                <span className="text-base group-hover:rotate-12 transition-transform duration-300">🔐</span>
+                <span>User Login</span>
+              </Link>
             </div>
 
           </div>
