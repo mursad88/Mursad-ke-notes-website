@@ -4,18 +4,16 @@ import Admin from './components/admin';
 import Dashboard from './components/Dashboard'; 
 import Notes from './components/Notes';
 import Login from './components/Login';
-import Signup from './components/Signup'; // 👈 1. यहाँ Signup इम्पोर्ट किया गया है
+import Signup from './components/Signup';
 import ViewNote from './components/ViewNote';
 import Contact from './components/Contact';
 
 function App() {
-  const isAdminLoggedIn = localStorage.getItem('adminToken');
-
   return (
     <Router>
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
         
-        {/* 🚀 Ultra-Professional Navbar */}
+        {/* 🚀 Ultra-Professional Navbar (Admin button removed) */}
         <nav className="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm text-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex flex-col sm:flex-row justify-between items-center sm:h-20 gap-3">
             
@@ -34,14 +32,6 @@ function App() {
               <Link to="/dashboard" className="hover:text-blue-600 transition">Dashboard</Link>
               <Link to="/contact" className="hover:text-blue-600 transition">Contact</Link>
               <Link to="/login" className="hover:text-blue-600 transition">Login</Link>
-              
-              {/* 👑 Perfectly Styled Admin Button */}
-              <Link 
-                to="/admin" 
-                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-4.5 py-2 rounded-2xl shadow-lg shadow-orange-500/20 transition flex items-center gap-2 text-xs sm:text-sm font-extrabold hover:scale-105"
-              >
-                {isAdminLoggedIn ? "👑 Admin Panel" : "👑 Admin Login"}
-              </Link>
             </div>
 
           </div>
@@ -55,7 +45,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} /> {/* 👈 2. यहाँ Signup का राउट जोड़ दिया गया है */}
+            <Route path="/signup" element={<Signup />} />
             <Route path="/view-note/:id" element={<ViewNote />} />
             <Route path="/contact" element={<Contact />} />
           </Routes>
