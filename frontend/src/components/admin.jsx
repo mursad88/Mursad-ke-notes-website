@@ -8,20 +8,27 @@ function Admin() {
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Notes States
+  // Notes States (अब यहाँ फाइल की जगह सीधे यूआरएल/लिंक रहेगा)
   const [notes, setNotes] = useState([]);
-  const [formData, setFormData] = useState({ title: '', category: '', price: '', description: '', content: '', validityDays: '365' });
-  const [pdfFile, setPdfFile] = useState(null);
-  const [sampleFile, setSampleFile] = useState(null);
+  const [formData, setFormData] = useState({ 
+    title: '', 
+    category: '', 
+    price: '', 
+    description: '', 
+    content: '', 
+    validityDays: '365',
+    pdfFile: '',       // 👈 Main PDF Link
+    sampleFile: ''     // 👈 Sample PDF Link
+  });
   const [loading, setLoading] = useState(false);
-  const [editingNoteId, setEditingNoteId] = useState(null); // 👈 Note Edit ID
+  const [editingNoteId, setEditingNoteId] = useState(null);
 
   // Team States
   const [teamMembers, setTeamMembers] = useState([]);
   const [teamData, setTeamData] = useState({ name: '', role: '', description: '' });
   const [teamPhotoBase64, setTeamPhotoBase64] = useState('');
   const [teamLoading, setTeamLoading] = useState(false);
-  const [editingTeamId, setEditingTeamId] = useState(null); // 👈 Team Edit ID
+  const [editingTeamId, setEditingTeamId] = useState(null);
 
   const handleLoginChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -87,19 +94,10 @@ function Admin() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // 🚀 Notes Submit Handler (JSON Format for instant update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    const submitData = new FormData();
-    submitData.append('title', formData.title);
-    submitData.append('category', formData.category);
-    submitData.append('price', formData.price);
-    submitData.append('description', formData.description);
-    submitData.append('content', formData.content);
-    submitData.append('validityDays', formData.validityDays);
-    if (pdfFile) submitData.append('pdfFile', pdfFile);
-    if (sampleFile) submitData.append('sampleFile', sampleFile);
 
     try {
       let url = `${API_URL}/api/admin/add-note`;
@@ -112,19 +110,18 @@ function Admin() {
 
       const res = await fetch(url, {
         method: method,
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: submitData
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(formData)
       });
       const data = await res.json();
 
       if (data.success) {
         alert("✅ " + data.message);
-        setFormData({ title: '', category: '', price: '', description: '', content: '', validityDays: '365' });
-        setPdfFile(null);
-        setSampleFile(null);
+        setFormData({ title: '', category: '', price: '', description: '', content: '', validityDays: '365', pdfFile: '', sampleFile: '' });
         setEditingNoteId(null);
-        if(document.getElementById('fileInput')) document.getElementById('fileInput').value = '';
-        if(document.getElementById('sampleInput')) document.getElementById('sampleInput').value = '';
         fetchNotes();
       } else {
         alert("❌ " + data.message);
@@ -137,7 +134,6 @@ function Admin() {
     }
   };
 
-  // ✏️ Edit Note Click Handler (Fixed)
   const handleEditNote = (item) => {
     setEditingNoteId(item._id);
     setFormData({
@@ -146,12 +142,13 @@ function Admin() {
       price: item.price || '',
       description: item.description || '',
       content: item.content || '',
-      validityDays: item.validityDays ? String(item.validityDays) : '365'
+      validityDays: item.validityDays ? String(item.validityDays) : '365',
+      pdfFile: item.pdfFile || '',
+      sampleFile: item.sampleFile || ''
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 🗑️ Delete Note (Fixed API Route)
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
     try {
@@ -164,7 +161,6 @@ function Admin() {
         alert("Note deleted successfully!");
         fetchNotes();
       } else {
-        // Fallback: अगर बैकएंड में राउट अलग हो तो यह दूसरा ट्राई करेगा
         const res2 = await fetch(`${API_URL}/api/notes/${id}`, {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` }
@@ -324,10 +320,10 @@ function Admin() {
         {/* Add / Update Note Form */}
         <div className="bg-slate-900 text-white p-8 rounded-xl shadow-lg border border-slate-800">
           <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
-            <h2 className="text-2xl font-bold">{editingNoteId ? "✏️ Update Note" : "Add New Note & PDFs"}</h2>
+            <h2 className="text-2xl font-bold">{editingNoteId ? "✏️ Update Note" : "Add New Note & PDF Links"}</h2>
             {editingNoteId && (
               <button 
-                onClick={() => { setEditingNoteId(null); setFormData({ title: '', category: '', price: '', description: '', content: '', validityDays: '365' }); }} 
+                onClick={() => { setEditingNoteId(null); setFormData({ title: '', category: '', price: '', description: '', content: '', validityDays: '365', pdfFile: '', sampleFile: '' }); }} 
                 className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg"
               >
                 Cancel Edit ❌
@@ -402,14 +398,29 @@ function Admin() {
               ></textarea>
             </div>
 
+            {/* 🔗 PDF Links Input Boxes */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-slate-950 p-4 border-2 border-dashed border-blue-500/50 rounded-lg">
-                <label className="block text-sm font-bold text-blue-400 mb-2">Main PDF File (Paid)</label>
-                <input type="file" id="fileInput" accept=".pdf" onChange={(e) => setPdfFile(e.target.files[0])} className="w-full text-sm text-slate-300"/>
+              <div>
+                <label className="block text-sm font-bold text-blue-400 mb-2">Main PDF URL (Paid)</label>
+                <input 
+                  type="url" 
+                  name="pdfFile" 
+                  placeholder="https://drive.google.com/... या कोई भी डायरेक्ट लिंक" 
+                  value={formData.pdfFile} 
+                  onChange={handleChange} 
+                  className="w-full p-3 bg-slate-950 border border-blue-500/50 rounded-xl text-white text-sm"
+                />
               </div>
-              <div className="bg-slate-950 p-4 border-2 border-dashed border-yellow-500/50 rounded-lg">
-                <label className="block text-sm font-bold text-yellow-400 mb-2">Sample PDF File (Free Preview)</label>
-                <input type="file" id="sampleInput" accept=".pdf" onChange={(e) => setSampleFile(e.target.files[0])} className="w-full text-sm text-slate-300"/>
+              <div>
+                <label className="block text-sm font-bold text-yellow-400 mb-2">Sample PDF URL (Free Preview)</label>
+                <input 
+                  type="url" 
+                  name="sampleFile" 
+                  placeholder="https://drive.google.com/... या डेमो पीडीएफ लिंक" 
+                  value={formData.sampleFile} 
+                  onChange={handleChange} 
+                  className="w-full p-3 bg-slate-950 border border-yellow-500/50 rounded-xl text-white text-sm"
+                />
               </div>
             </div>
 
