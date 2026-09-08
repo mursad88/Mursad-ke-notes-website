@@ -137,20 +137,21 @@ function Admin() {
     }
   };
 
-  // ✏️ Edit Note Click Handler
+  // ✏️ Edit Note Click Handler (Fixed)
   const handleEditNote = (item) => {
     setEditingNoteId(item._id);
     setFormData({
-      title: item.title,
-      category: item.category,
-      price: item.price,
-      description: item.description,
+      title: item.title || '',
+      category: item.category || '',
+      price: item.price || '',
+      description: item.description || '',
       content: item.content || '',
-      validityDays: item.validityDays || '365'
+      validityDays: item.validityDays ? String(item.validityDays) : '365'
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // 🗑️ Delete Note (Fixed API Route)
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
     try {
@@ -160,11 +161,24 @@ function Admin() {
       });
       const data = await res.json();
       if (data.success) {
-        alert("Note deleted!");
+        alert("Note deleted successfully!");
         fetchNotes();
+      } else {
+        // Fallback: अगर बैकएंड में राउट अलग हो तो यह दूसरा ट्राई करेगा
+        const res2 = await fetch(`${API_URL}/api/notes/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data2 = await res2.json();
+        if(data2.success) {
+          alert("Note deleted successfully!");
+          fetchNotes();
+        } else {
+          alert("❌ " + (data.message || data2.message || "Delete failed."));
+        }
       }
     } catch (err) {
-      alert("Delete failed.");
+      alert("Delete failed due to network error.");
     }
   };
 
@@ -227,7 +241,6 @@ function Admin() {
     }
   };
 
-  // ✏️ Edit Team Click Handler
   const handleEditTeam = (member) => {
     setEditingTeamId(member._id);
     setTeamData({
@@ -249,6 +262,8 @@ function Admin() {
       if (data.success) {
         alert("टीम मेंबर हटा दिया गया!");
         fetchTeam();
+      } else {
+        alert("❌ " + data.message);
       }
     } catch (err) {
       alert("Delete failed.");
