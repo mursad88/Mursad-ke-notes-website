@@ -32,10 +32,8 @@ function Home() {
     fetchData();
   }, []);
 
-  // 1. डेटाबेस से मिलने वाले सभी नोट्स से यूनिक (Unique) कैटेगरीज अपने आप निकाल लेंगे
   const dynamicCategories = ['All', ...new Set(notes.map(note => note.category).filter(Boolean))];
 
-  // 2. सर्च और कैटेगरी के हिसाब से नोट्स को फिल्टर करना
   const filteredNotes = notes.filter((note) => {
     const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           note.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -43,14 +41,13 @@ function Home() {
     return matchesSearch && matchesCategory;
   });
 
-  // 3. होम पेज के लिए 10 मुख्य विशेषताएँ (Features / Highlights)
   const features = [
     { title: "हर विषय के नोट्स", desc: "यहाँ आपको अलग-अलग सभी विषयों के बेहतरीन और कंप्लीट नोट्स एक ही जगह मिल जाएंगे।" },
-    { title: "आसान भाषा", desc: "नोट्स की भाषा इतनी सरल है कि पहली बार पढ़ने वाले को भी तुरंत समझ आ जाएगी।" },
+    { title: "आसान भाषा", desc: "नोट्स की भाषा इतनी सरल है कि पहली बार पढ़ने वाले को भी तुरंत समझ आ जाएगी।" },
     { title: "पॉइंट-टू-पॉइंट", desc: "बिना किसी फालतू कहानी के, सीधे काम की और जरूरी बातें लिखी गई हैं।" },
     { title: "समय की बचत", desc: "कम समय में पूरा सिलेबस रिवाइज करने के लिए सबसे बेस्ट मटेरियल।" },
-    { title: "आत्मविश्वास बढ़ाएं", desc: "कठिन से कठिन टॉपिक को आसान बनाकर आपके अंदर पूरा कॉन्फिडेंस लाएंगे।" },
-    { title: "शुरुआत से सीखें", desc: "चाहे आप बिल्कुल बेसिक लेवल पर हों, ये नोट्स आपको आसानी से आगे बढ़ाएंगे।" },
+    { title: "आत्मविश्वास बढ़ाएं", desc: "कठिन से कठिन टॉपिक को आसान बनाकर आपके अंदर पूरा कॉन्फिडेंस लाएंगे।" },
+    { title: "शुरुआत से सीखें", desc: "चाहे आप बिल्कुल बेसिक लेवल पर हों, ये नोट्स आपको आसानी से आगे बढ़ाएंगे।" },
     { title: "एग्जाम-ओरिएंटेड", desc: "परीक्षाओं और इंटरव्यू में पूछे जाने वाले महत्वपूर्ण सवालों को ध्यान में रखकर तैयार किए गए हैं।" },
     { title: "क्विक रिवीजन", desc: "परीक्षा के ठीक पहले चंद घंटों में पूरा रिवीजन करने के लिए सबसे असरदार।" },
     { title: "पैसे वसूल वैल्यू", desc: "कम कीमत में बेहतरीन क्वालिटी का ऐसा ज्ञान जो आपके बहुत काम आएगा।" },
@@ -60,7 +57,6 @@ function Home() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500 selection:text-white relative overflow-hidden">
       
-      {/* Background Glow Effect */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[350px] bg-blue-600/10 blur-[140px] rounded-full pointer-events-none"></div>
 
       {/* Hero Section */}
@@ -94,7 +90,7 @@ function Home() {
         </div>
       </header>
 
-      {/* 🚀 Why Choose Our Notes Section (10 Points Highlights) */}
+      {/* Features Section */}
       <section className="max-w-7xl mx-auto px-6 mb-16 relative z-10">
         <div className="text-center mb-10">
           <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-2">हमारे नोट्स की मुख्य विशेषताएँ ✨</h3>
@@ -119,7 +115,7 @@ function Home() {
         </div>
       </section>
 
-      {/* Dynamic Categories Filter Buttons (एडमिन द्वारा डाली गई कैटेगरीज यहाँ खुद-ब-खुद आएंगी) */}
+      {/* Categories Filter Buttons */}
       <div className="max-w-7xl mx-auto px-6 mb-12 relative z-10">
         <div className="flex flex-wrap justify-center gap-3">
           {dynamicCategories.map((cat, index) => (
@@ -163,40 +159,65 @@ function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {filteredNotes.map((note) => (
-              <div 
-                key={note._id} 
-                className="bg-slate-900/70 backdrop-blur-md rounded-3xl p-6 border border-slate-800/80 hover:border-blue-500/50 shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
-              >
-                <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                      {note.category}
-                    </span>
+            {filteredNotes.map((note) => {
+              const sampleLink = note.samplePdfUrl || note.samplePdf || note.sampleFile;
+              return (
+                <div 
+                  key={note._id} 
+                  className="bg-slate-900/70 backdrop-blur-md rounded-3xl p-6 border border-slate-800/80 hover:border-blue-500/50 shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+                >
+                  <div>
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        {note.category}
+                      </span>
+                    </div>
+                    <h4 className="text-xl font-bold mb-2 group-hover:text-blue-400 transition line-clamp-1">{note.title}</h4>
+                    <p className="text-slate-400 text-sm line-clamp-3 mb-6 leading-relaxed">{note.description}</p>
                   </div>
-                  <h4 className="text-xl font-bold mb-2 group-hover:text-blue-400 transition line-clamp-1">{note.title}</h4>
-                  <p className="text-slate-400 text-sm line-clamp-3 mb-6 leading-relaxed">{note.description}</p>
-                </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-4 pt-4 border-t border-slate-800/60">
-                    <span className="text-xs text-slate-500 font-semibold uppercase">Price</span>
-                    <span className="text-2xl font-black text-emerald-400">₹{note.price}</span>
+                  <div>
+                    <div className="flex items-center justify-between mb-4 pt-4 border-t border-slate-800/60">
+                      <span className="text-xs text-slate-500 font-semibold uppercase">Price</span>
+                      <span className="text-2xl font-black text-emerald-400">₹{note.price}</span>
+                    </div>
+
+                    {/* 🚀 होम पेज पर डायरेक्ट सैंपल पीडीएफ और व्यू डीटेल्स बटन */}
+                    <div className="space-y-2.5">
+                      {sampleLink ? (
+                        <a 
+                          href={sampleLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="block text-center bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white font-bold py-2.5 rounded-xl border border-amber-500/30 transition text-sm shadow-sm"
+                        >
+                          👁️ View Sample PDF (Demo)
+                        </a>
+                      ) : (
+                        <button 
+                          onClick={() => alert("इस नोट का सैंपल पीडीएफ अभी अपलोड नहीं किया गया है!")}
+                          className="w-full text-center bg-slate-800/60 hover:bg-slate-800 text-slate-400 font-bold py-2.5 rounded-xl border border-slate-700/50 transition text-sm"
+                        >
+                          👁️ Sample Not Available
+                        </button>
+                      )}
+
+                      <Link 
+                        to={`/view-note/${note._id}`} 
+                        className="block text-center bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-600/20 transition text-sm"
+                      >
+                        View Details & Buy 🚀
+                      </Link>
+                    </div>
                   </div>
-                  <Link 
-                    to={`/view-note/${note._id}`} 
-                    className="block text-center bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-blue-600/20 transition group-hover:scale-[1.02]"
-                  >
-                    View Details & Sample 👁️
-                  </Link>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
 
-      {/* --- Dynamic Team Section --- */}
+      {/* Team Section */}
       {teamMembers.length > 0 && (
         <div className="py-16 bg-slate-900/40 border-t border-slate-800/80 text-white relative z-10">
           <div className="max-w-7xl mx-auto px-6">
