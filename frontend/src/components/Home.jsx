@@ -43,6 +43,20 @@ function Home() {
     return matchesSearch && matchesCategory;
   });
 
+  // 3. होम पेज के लिए 10 मुख्य विशेषताएँ (Features / Highlights)
+  const features = [
+    { title: "हर विषय के नोट्स", desc: "यहाँ आपको अलग-अलग सभी विषयों के बेहतरीन और कंप्लीट नोट्स एक ही जगह मिल जाएंगे।" },
+    { title: "आसान भाषा", desc: "नोट्स की भाषा इतनी सरल है कि पहली बार पढ़ने वाले को भी तुरंत समझ आ जाएगी।" },
+    { title: "पॉइंट-टू-पॉइंट", desc: "बिना किसी फालतू कहानी के, सीधे काम की और जरूरी बातें लिखी गई हैं।" },
+    { title: "समय की बचत", desc: "कम समय में पूरा सिलेबस रिवाइज करने के लिए सबसे बेस्ट मटेरियल।" },
+    { title: "आत्मविश्वास बढ़ाएं", desc: "कठिन से कठिन टॉपिक को आसान बनाकर आपके अंदर पूरा कॉन्फिडेंस लाएंगे।" },
+    { title: "शुरुआत से सीखें", desc: "चाहे आप बिल्कुल बेसिक लेवल पर हों, ये नोट्स आपको आसानी से आगे बढ़ाएंगे।" },
+    { title: "एग्जाम-ओरिएंटेड", desc: "परीक्षाओं और इंटरव्यू में पूछे जाने वाले महत्वपूर्ण सवालों को ध्यान में रखकर तैयार किए गए हैं।" },
+    { title: "क्विक रिवीजन", desc: "परीक्षा के ठीक पहले चंद घंटों में पूरा रिवीजन करने के लिए सबसे असरदार।" },
+    { title: "पैसे वसूल वैल्यू", desc: "कम कीमत में बेहतरीन क्वालिटी का ऐसा ज्ञान जो आपके बहुत काम आएगा।" },
+    { title: "हर छात्र के लिए", desc: "कॉलेज के स्टूडेंट्स हों या प्रतियोगी परीक्षाओं की तैयारी करने वाले, सभी के लिए समान रूप से उपयोगी।" }
+  ];
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500 selection:text-white relative overflow-hidden">
       
@@ -79,6 +93,31 @@ function Home() {
           <span className="absolute right-5 top-4 text-slate-500 text-xl pointer-events-none">🔍</span>
         </div>
       </header>
+
+      {/* 🚀 Why Choose Our Notes Section (10 Points Highlights) */}
+      <section className="max-w-7xl mx-auto px-6 mb-16 relative z-10">
+        <div className="text-center mb-10">
+          <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-2">हमारे नोट्स की मुख्य विशेषताएँ ✨</h3>
+          <p className="text-slate-400 text-sm md:text-base">जानिए क्यों ये नोट्स आपकी तैयारी के लिए सबसे बेस्ट हैं</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          {features.map((item, index) => (
+            <div 
+              key={index} 
+              className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-lg hover:border-blue-500/50 transition duration-300 space-y-2 flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-xs font-extrabold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full">
+                  #{index + 1}
+                </span>
+                <h4 className="font-bold text-base text-white mt-3 mb-1">{item.title}</h4>
+                <p className="text-slate-400 text-xs leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Dynamic Categories Filter Buttons (एडमिन द्वारा डाली गई कैटेगरीज यहाँ खुद-ब-खुद आएंगी) */}
       <div className="max-w-7xl mx-auto px-6 mb-12 relative z-10">
