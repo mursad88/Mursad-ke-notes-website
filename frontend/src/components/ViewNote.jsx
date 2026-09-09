@@ -9,7 +9,7 @@ function ViewNote() {
   const navigate = useNavigate();
   const [note, setNote] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isPurchased, setIsPurchased] = useState(false); // 👈 Check karne ke liye ki user ne kharida hai ya nahi
+  const [isPurchased, setIsPurchased] = useState(false);
 
   useEffect(() => {
     const fetchNoteDetail = async () => {
@@ -21,7 +21,6 @@ function ViewNote() {
           setNote(data);
         }
 
-        // Check if user has already purchased this note (Optional/If API supports)
         const token = localStorage.getItem('token');
         if (token) {
           try {
@@ -104,6 +103,10 @@ function ViewNote() {
 
   if (!note) return <div className="text-center py-24 text-red-400 text-lg font-bold">Note not found! ❌</div>;
 
+  // 🔗 सभी संभावित वेरिएबल नामों को यहाँ जोड़ा गया है ताकि लिंक मिस न हो
+  const sampleLink = note.samplePdfUrl || note.samplePdf || note.sampleFile;
+  const mainPdfLink = note.pdfUrl || note.pdfFile;
+
   return (
     <div className="p-6 md:p-12 max-w-4xl mx-auto text-white space-y-6">
       <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-6">
@@ -122,28 +125,32 @@ function ViewNote() {
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
           
           {/* 1. View Sample PDF (फ्री डेमो - सभी विजिटर्स देख सकते हैं) */}
-          {note.samplePdfUrl && (
+          {sampleLink ? (
             <a 
-              href={note.samplePdfUrl} 
+              href={sampleLink} 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-amber-600 hover:bg-amber-500 text-white px-6 py-3.5 rounded-2xl font-bold transition text-center shadow-lg shadow-amber-600/20 flex items-center justify-center gap-2"
             >
               👁️ View Sample PDF (Free Demo)
             </a>
+          ) : (
+            <span className="text-xs text-slate-500 self-center">Sample not available</span>
           )}
 
           {/* 2. Buy Now or View Main PDF */}
           {isPurchased || note.isPurchased ? (
-            note.pdfUrl && (
+            mainPdfLink ? (
               <a 
-                href={note.pdfUrl} 
+                href={mainPdfLink} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-2xl font-bold transition text-center shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
               >
                 📥 Download Full Notes (Paid)
               </a>
+            ) : (
+              <span className="text-emerald-400 font-bold self-center">Payment Done! (PDF link updating...)</span>
             )
           ) : (
             <button 
